@@ -34,6 +34,16 @@ class AX650Backend:
         
         # Try to import manufacturer python bindings
         self.backend_type = None
+        self.axcl = None  # For low-level control like reset
+
+        # Always try to import axcl (pyaxcl package) for device management
+        try:
+            import axcl
+            self.axcl = axcl
+            logger.info("Successfully imported axcl for device management")
+        except ImportError:
+            logger.warning("Could not import axcl - device reset will not be available")
+
         try:
             from axengine import InferenceSession  # type: ignore
             self.impl = InferenceSession
@@ -42,15 +52,40 @@ class AX650Backend:
         except Exception as e:
             logger.info(f"Could not import axengine: {e}")
             try:
-                import pyaxcl as axcl  # type: ignore
-                self.impl = axcl
-                self.backend_type = "pyaxcl"
-                logger.info("Successfully imported pyaxcl")
+                if self.axcl:
+                    self.impl = self.axcl
+                    self.backend_type = "pyaxcl"
+                    logger.info("Using pyaxcl as backend")
+                else:
+                    raise ImportError("No axcl bindings found")
             except Exception as e2:
-                logger.info(f"Could not import pyaxcl: {e2}")
+                logger.info(f"Could not import pyaxcl as backend: {e2}")
                 self.impl = None
                 self.backend_type = "dummy"
                 logger.warning("Running in DUMMY mode - no AX650 hardware access")
+
+    def reset_device(self, device_id=0):
+        """Reset the AX650 device to clear state."""
+        if self.backend_type == "dummy":
+            logger.info("DUMMY: Resetting device 0")
+            return True
+            
+        if self.axcl:
+            try:
+                logger.info(f"Resetting device {device_id} via pyaxcl...")
+                # axcl.rt.reset_device returns 0 on success
+                ret = self.axcl.rt.reset_device(device_id)
+                if ret != 0:
+                    logger.error(f"axcl.rt.reset_device failed with code {ret}")
+                    return False
+                logger.info(f"Successfully reset device {device_id}")
+                return True
+            except Exception as e:
+                logger.error(f"Exception during device reset: {e}")
+                return False
+        else:
+            logger.warning("Cannot reset device: pyaxcl not available")
+            return False
 
     def load_model(self, model_path: str = None):
         """Load AX650 model using InferenceSession.
@@ -70,10 +105,22 @@ class AX650Backend:
         if not model_path or not os.path.exists(model_path):
             return {"status": "error", "message": f"Model path not found: {model_path}"}
         
+        # Reset device before loading new model to ensure clean state
+        if self.session or self.axcl:
+            logger.info("Resetting device before model load...")
+            self.reset_device(0)
+            self.session = None
+            self.layers = []
+        
         self.model_path = model_path
         
         try:
             if self.backend_type == "axengine":
+                # Check for Qwen3-4B multi-layer structure
+                if os.path.exists(os.path.join(model_path, "qwen3_post.axmodel")) or \
+                   os.path.exists(os.path.join(model_path, "llama_post.axmodel")):
+                    return self._load_qwen3_4b(model_path)
+
                 # Load using axengine InferenceSession API
                 prefill_path = os.path.join(model_path, "model_prefill.axmodel")
                 decode_path = os.path.join(model_path, "model_decode.axmodel")
@@ -81,14 +128,14 @@ class AX650Backend:
                 if os.path.exists(prefill_path):
                     logger.info(f"Loading prefill model from {prefill_path}")
                     self.session = {
-                        'prefill': self.impl.load_from_model(prefill_path),
-                        'decode': self.impl.load_from_model(decode_path) if os.path.exists(decode_path) else None
+                        'prefill': self.impl(prefill_path),
+                        'decode': self.impl(decode_path) if os.path.exists(decode_path) else None
                     }
                 else:
                     # Single model file
                     model_file = os.path.join(model_path, "model.axmodel")
                     logger.info(f"Loading single model from {model_file}")
-                    self.session = self.impl.load_from_model(model_file)
+                    self.session = self.impl(model_file)
                 
                 # Load embedding weights if available
                 embed_path = os.path.join(model_path, "model.embed_tokens.weight.npy")
@@ -112,6 +159,69 @@ class AX650Backend:
             return {"status": "error", "message": str(e)}
         
         return {"status": "error", "message": "Unknown backend type"}
+
+    def _load_qwen3_4b(self, model_path):
+        """Load Qwen3-4B specific multi-layer model structure."""
+        logger.info("Detected Qwen3-4B model structure")
+        self.model_type = "qwen3-4b"
+        
+        # Load embeddings
+        # Try .bin first (bfloat16)
+        embed_path = os.path.join(model_path, "model.embed_tokens.weight.bfloat16.bin")
+        if os.path.exists(embed_path):
+            try:
+                # Assuming shape [151936, 2560] from docs
+                self.embedding_weights = np.fromfile(embed_path, dtype=np.uint16).reshape(151936, 2560)
+                logger.info(f"Loaded bfloat16 embeddings from {embed_path}")
+            except Exception as e:
+                logger.error(f"Failed to load bin embeddings: {e}")
+        
+        if self.embedding_weights is None:
+             # Try .npy
+             embed_path = os.path.join(model_path, "model.embed_tokens.weight.npy")
+             if os.path.exists(embed_path):
+                 self.embedding_weights = np.load(embed_path)
+                 logger.info(f"Loaded .npy embeddings from {embed_path}")
+
+        # Load layers
+        self.layers = []
+        # Try to detect number of layers or assume 36
+        num_layers = 36
+        for i in range(num_layers):
+             # Try different naming patterns
+             p = os.path.join(model_path, f"qwen3_p128_l{i}_together.axmodel")
+             if not os.path.exists(p):
+                 p = os.path.join(model_path, f"llama_p320_l{i}_together.axmodel")
+             
+             if os.path.exists(p):
+                 logger.info(f"Loading layer {i} from {os.path.basename(p)}")
+                 self.layers.append(self.impl(p))
+             else:
+                 logger.warning(f"Layer {i} model not found at {p}")
+        
+        # Load post
+        post_path = os.path.join(model_path, "qwen3_post.axmodel")
+        if not os.path.exists(post_path):
+            post_path = os.path.join(model_path, "llama_post.axmodel")
+        
+        if os.path.exists(post_path):
+            logger.info(f"Loading post-process model from {post_path}")
+            self.post_model = self.impl(post_path)
+        
+        # Initialize KV caches
+        self._initialize_kv_caches(num_layers=len(self.layers))
+        
+        # Try to load tokenizer
+        try:
+            from transformers import AutoTokenizer
+            self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+            logger.info("Loaded AutoTokenizer")
+        except Exception as e:
+            logger.warning(f"Could not load AutoTokenizer: {e}")
+
+        self.session = "qwen3-4b-loaded" # Marker
+        return {"status": "loaded", "model": model_path, "type": "qwen3-4b", "layers": len(self.layers)}
+
     
     def _initialize_kv_caches(self, num_layers=32, kv_dim=2048, max_seq_len=1023):
         """Initialize KV caches for LLM inference.
@@ -177,6 +287,9 @@ class AX650Backend:
         4. Loop: generate tokens one at a time using decode pass
         5. Stop on EOS or max_tokens
         """
+        if getattr(self, "model_type", None) == "qwen3-4b":
+             return self._generate_qwen3_4b(prompt, max_tokens, temperature, top_p, top_k)
+
         # For now, return a placeholder showing the SDK is connected
         # Real implementation requires:
         # - Tokenizer integration (transformers AutoTokenizer or custom)
@@ -204,6 +317,16 @@ class AX650Backend:
         # 5. return tokenizer.decode(generated_tokens)
         
         return f"[axengine] Generated response for: {prompt} (SDK integrated, full pipeline TODO)"
+
+    def _generate_qwen3_4b(self, prompt, max_tokens, temperature, top_p, top_k):
+        """Generation loop for Qwen3-4B multi-layer model."""
+        if not self.tokenizer:
+            return "Error: Tokenizer not loaded (transformers required)"
+            
+        # Placeholder for the complex 36-layer loop
+        # This requires managing KV cache for 36 layers and running them sequentially
+        return f"Qwen3-4B Model Loaded ({len(self.layers)} layers). Ready for inference loop implementation."
+
     
     def _generate_pyaxcl(self, prompt: str, max_tokens: int):
         """Generate using pyaxcl API (if different from axengine)."""
@@ -225,6 +348,17 @@ def load_route():
     path = data.get("model_path") or os.environ.get("AX650_MODEL_PATH")
     res = BACKEND.load_model(path)
     return jsonify(res)
+
+
+@APP.route("/reset", methods=["POST"])
+def reset_route():
+    """Force hardware reset of the device."""
+    device_id = int(request.args.get("device_id", 0))
+    success = BACKEND.reset_device(device_id)
+    if success:
+        return jsonify({"status": "ok", "message": f"Device {device_id} reset successfully"})
+    else:
+        return jsonify({"status": "error", "message": "Device reset failed"}), 500
 
 
 @APP.route("/generate", methods=["POST"])
