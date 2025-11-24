@@ -14,6 +14,17 @@ echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc
 # Verify installation
 go version
 ```
+Note: if you prefer not to install Go system-wide you can keep a local Go toolchain in your home directory. In this repository we used a local toolchain at `~/go-toolchain` to avoid checking binaries into Git. To use it:
+
+```bash
+# example (already done in this repo):
+export PATH=$HOME/go-toolchain/bin:$PATH
+# then run go commands like: go build
+```
+
+When building, you may encounter modules that require newer Go versions. The project includes guidance in `go.mod` but you can either:
+- install a newer system Go (recommended) or
+- adjust `go.mod` to compatible dependency versions (advanced; used here for local builds on older Go)
 
 ## Build Steps
 

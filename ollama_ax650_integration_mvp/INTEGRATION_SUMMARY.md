@@ -60,6 +60,12 @@ backend.py
     └── GET /health: System status
 ```
 
+Recent local build notes:
+
+- A local Go toolchain (`go` tarball) was kept in `~/go-toolchain` during development to avoid committing binary archives into the repo. If you use a local toolchain, ensure you add `~/go-toolchain/bin` to your `PATH` before running `go` commands.
+- While building Ollama locally we applied two small compatibility fixes in the `ollama` submodule: an update to `llm/llm_ax650.go` to match the current `ml` package struct fields, and `go.mod` adjustments to allow the build with the toolchain available on this machine. On a fresh Pi install the recommended approach is to install a suitable system Go (recommended) and prefer not to change `go.mod` unless needed.
+- A helper script `run_integration.sh` was added at the repository root to automate starting the backend and running a smoke test. Edit paths in that script to match your environment before using it.
+
 ## Test Results
 
 ✅ **All tests passing in dummy mode:**

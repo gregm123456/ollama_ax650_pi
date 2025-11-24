@@ -30,6 +30,8 @@ export AX650_PORT=5002
 # Start backend
 source .venv/bin/activate
 python backend.py
+
+Tip: For quick local end-to-end testing we've included `run_integration.sh` at the repository root (`/home/robot/ollama_ax650_pi/run_integration.sh`). It attempts to start the backend, build the Ollama binary (if required) and create/run a model. Review and edit it for your paths and model before running.
 ```
 
 ### 2. Build Ollama with AX650 Support

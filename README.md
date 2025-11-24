@@ -61,6 +61,14 @@ python backend.py &
 cd ../ollama
 go build -o ollama-ax650 .
 
+Note: This repo uses a local Go toolchain in `~/go-toolchain` in some development runs to avoid committing tarballs into Git. If you keep a local toolchain, add it to your `PATH`:
+
+```bash
+export PATH=$HOME/go-toolchain/bin:$PATH
+```
+
+There's also a helper script at the repo root `run_integration.sh` that automates starting the backend and attempting an Ollama build/run for a quick smoke test — edit it before using.
+
 # Run Ollama
 ./ollama-ax650 serve &
 

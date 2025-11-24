@@ -85,6 +85,10 @@ export AX650_MODEL_PATH=/path/to/model  # Model directory
 export AX650_PORT=5002                  # Backend port
 ```
 
+Note: This repository may include a local Go toolchain moved to `~/go-toolchain` to avoid keeping large binaries in Git. If you use the local toolchain, ensure your `PATH` includes `~/go-toolchain/bin`.
+
+Quick integration: a helper script `run_integration.sh` exists at the repository root to start the backend and (optionally) build/start Ollama for a quick smoke test; edit the script to match your paths and model.
+
 ## 📝 Code Locations
 
 | What | Where |
