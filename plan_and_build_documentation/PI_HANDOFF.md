@@ -1,57 +1,33 @@
 # Quick take-home (clone on the Pi — do this first)
 
-Before cloning on the Raspberry Pi, follow these exact, safe steps to avoid submodule pointer/commit problems:
+To set up the environment on the Raspberry Pi, clone the main repository and recursively initialize all submodules. This ensures you get the correct versions of the AX650 services and the Ollama fork.
 
-- Clone the repository normally (do NOT use shallow clones for submodules):
+1. **Clone the repository:**
 
 ```bash
 git clone https://github.com/gregm123456/ollama_ax650_pi.git
 cd ollama_ax650_pi
 ```
 
-- Fetch and make sure the local top-level exactly matches GitHub (this avoids local pointer drift):
+2. **Initialize and update submodules:**
+
+This command will fetch the `ax650_raspberry_pi_services` and `ollama` submodules, and then recursively fetch all nested submodules (including the reference projects and hardware documentation).
 
 ```bash
-git fetch origin --prune
-git reset --hard origin/main
+git submodule update --init --recursive
 ```
 
-- Sync and initialise submodules the safe way (no depth/shallow):
-
+*Note: If you encounter authentication prompts for public repositories, you can try:*
 ```bash
-git submodule sync --recursive
-GIT_TERMINAL_PROMPT=1 git submodule update --init --recursive --force
-```
-
-- If you see an error like "it did not contain <sha>" for a nested submodule, do not mass-commit pointer changes. Instead, inspect and safely recover:
-
-```bash
-# in the problematic submodule dir
-cd path/to/problematic/submodule
-git remote -v
-git fetch --all --tags --prune
-# try to checkout the recorded SHA first, otherwise pick a reachable branch tip
-git checkout <recorded-sha> || git checkout origin/master || git checkout origin/main
-cd -
-# then re-run
 GIT_TERMINAL_PROMPT=1 git submodule update --init --recursive
 ```
 
-- Only update and push submodule pointer changes in the superproject when you intentionally want to pin a new upstream tip. To publish a safe pointer update:
+3. **Verify structure:**
 
-```bash
-# commit inside the submodule (if you changed its gitlink), then in the parent:
-git add path/to/submodule
-git commit -m "Update <submodule> pointer to reachable tip"
-git push origin HEAD:main
-```
-
-- Authentication: ensure the Pi has access to remotes (SSH keys or HTTPS credentials) or set `GIT_TERMINAL_PROMPT=1` to allow interactive auth.
-
-- Summary notes:
-	- Do not use `--depth` for submodule init unless you explicitly know the recorded commit exists in the shallow fetch. Shallow fetches caused the missing-commit errors we fixed locally.
-	- Prefer fetch+checkout inside the offending submodule over wide-ranging top-level pointer commits.
-	- If you need me to make the repo always reference branch tips instead of recorded SHAs, say so and I'll prepare a small script and CI check.
+After the update, you should see populated directories for:
+- `ax650_raspberry_pi_services/` (contains `coyote_interactive`, `reference_projects_and_documentation`, etc.)
+- `ollama/` (the Ollama source code)
+- `ollama_ax650_integration_mvp/` (the Python integration code)
 
 # Raspberry Pi Handoff & Next Steps
 
@@ -65,7 +41,7 @@ Quick checklist to perform on the Pi:
 1. Clone repository on Pi:
 
 ```bash
-git clone https://github.com/gregm123456/ollama_ax650_pi.git && cd ollama_ax650_pi
+git clone <this-repo> && cd <repo>/ollama_ax650_integration_mvp
 ```
 
 2. Create and activate a venv, install manufacturer binding and deps:

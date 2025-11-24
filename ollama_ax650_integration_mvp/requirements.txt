@@ -1,0 +1,3 @@
+flask>=2.0
+# Optional manufacturer bindings (install on target Raspberry Pi)
+pyaxcl
