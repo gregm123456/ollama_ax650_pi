@@ -1,9 +1,223 @@
+INFO:__main__:Successfully imported axcl for device management
+INFO:__main__:Successfully imported axengine.InferenceSession
+INFO:__main__:============================================================
+INFO:__main__:AX650/LLM8850 Backend Server Starting
+INFO:__main__:Backend type: axengine
+INFO:__main__:============================================================
+INFO:__main__:Auto-loading model from AX650_MODEL_PATH: /home/robot/ollama_ax650_pi/ax650_raspberry_pi_services/reference_projects_and_documentation/Qwen3-4B/qwen3-4b-ax650
+INFO:__main__:Resetting device before model load...
+INFO:__main__:Resetting device 0 via pyaxcl...
+[2025-11-24 00:15:27.678][36896][E][device manager][deactive][178]: device 0 is not connected
+ERROR:__main__:axcl.rt.reset_device failed with code -2144337532
+INFO:__main__:Detected Qwen3-4B model structure
+INFO:__main__:Loaded bfloat16 embeddings from /home/robot/ollama_ax650_pi/ax650_raspberry_pi_services/reference_projects_and_documentation/Qwen3-4B/qwen3-4b-ax650/model.embed_tokens.weight.bfloat16.bin and converted to float32
+INFO:__main__:Loading layer 0 from qwen3_p128_l0_together.axmodel
+INFO:__main__:Loading layer 1 from qwen3_p128_l1_together.axmodel
+INFO:__main__:Loading layer 2 from qwen3_p128_l2_together.axmodel
+INFO:__main__:Loading layer 3 from qwen3_p128_l3_together.axmodel
+INFO:__main__:Loading layer 4 from qwen3_p128_l4_together.axmodel
+INFO:__main__:Loading layer 5 from qwen3_p128_l5_together.axmodel
+INFO:__main__:Loading layer 6 from qwen3_p128_l6_together.axmodel
+INFO:__main__:Loading layer 7 from qwen3_p128_l7_together.axmodel
+INFO:__main__:Loading layer 8 from qwen3_p128_l8_together.axmodel
+INFO:__main__:Loading layer 9 from qwen3_p128_l9_together.axmodel
+INFO:__main__:Loading layer 10 from qwen3_p128_l10_together.axmodel
+INFO:__main__:Loading layer 11 from qwen3_p128_l11_together.axmodel
+INFO:__main__:Loading layer 12 from qwen3_p128_l12_together.axmodel
+INFO:__main__:Loading layer 13 from qwen3_p128_l13_together.axmodel
+INFO:__main__:Loading layer 14 from qwen3_p128_l14_together.axmodel
+INFO:__main__:Loading layer 15 from qwen3_p128_l15_together.axmodel
+INFO:__main__:Loading layer 16 from qwen3_p128_l16_together.axmodel
+INFO:__main__:Loading layer 17 from qwen3_p128_l17_together.axmodel
+INFO:__main__:Loading layer 18 from qwen3_p128_l18_together.axmodel
+INFO:__main__:Loading layer 19 from qwen3_p128_l19_together.axmodel
+INFO:__main__:Loading layer 20 from qwen3_p128_l20_together.axmodel
+INFO:__main__:Loading layer 21 from qwen3_p128_l21_together.axmodel
+INFO:__main__:Loading layer 22 from qwen3_p128_l22_together.axmodel
+INFO:__main__:Loading layer 23 from qwen3_p128_l23_together.axmodel
+INFO:__main__:Loading layer 24 from qwen3_p128_l24_together.axmodel
+INFO:__main__:Loading layer 25 from qwen3_p128_l25_together.axmodel
+INFO:__main__:Loading layer 26 from qwen3_p128_l26_together.axmodel
+INFO:__main__:Loading layer 27 from qwen3_p128_l27_together.axmodel
+INFO:__main__:Loading layer 28 from qwen3_p128_l28_together.axmodel
+INFO:__main__:Loading layer 29 from qwen3_p128_l29_together.axmodel
+INFO:__main__:Loading layer 30 from qwen3_p128_l30_together.axmodel
+INFO:__main__:Loading layer 31 from qwen3_p128_l31_together.axmodel
+INFO:__main__:Loading layer 32 from qwen3_p128_l32_together.axmodel
+INFO:__main__:Loading layer 33 from qwen3_p128_l33_together.axmodel
+INFO:__main__:Loading layer 34 from qwen3_p128_l34_together.axmodel
+INFO:__main__:Loading layer 35 from qwen3_p128_l35_together.axmodel
+INFO:__main__:Loading post-process model from /home/robot/ollama_ax650_pi/ax650_raspberry_pi_services/reference_projects_and_documentation/Qwen3-4B/qwen3-4b-ax650/qwen3_post.axmodel
+INFO:__main__:Initialized KV caches: 36 layers, 1024 seq len, 1024 dims
+You are using the default legacy behaviour of the <class 'transformers.models.llama.tokenization_llama.LlamaTokenizer'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565 - if you loaded a llama tokenizer from a GGUF file you can ignore this message
+WARNING:__main__:Failed to load tokenizer from /home/robot/ollama_ax650_pi/ax650_raspberry_pi_services/reference_projects_and_documentation/Qwen3-4B/qwen3-4b-ax650: not a string
+INFO:__main__:Loaded AutoTokenizer from HF Hub fallback
+INFO:__main__:Model load result: {'status': 'loaded', 'model': '/home/robot/ollama_ax650_pi/ax650_raspberry_pi_services/reference_projects_and_documentation/Qwen3-4B/qwen3-4b-ax650', 'type': 'qwen3-4b', 'layers': 36}
+INFO:__main__:Starting Flask server on http://0.0.0.0:5002
+INFO:__main__:Endpoints: /load (POST), /generate (POST), /health (GET)
+[INFO] Available providers:  ['AXCLRTExecutionProvider']
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
+[INFO] Using provider: AXCLRTExecutionProvider
+[INFO] SOC Name: AX650N
+[INFO] VNPU type: VNPUType.DISABLED
+[INFO] Compiler version: 4.1-patch1 f802af4a
  * Serving Flask app 'backend'
  * Debug mode: off
-[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
  * Running on all addresses (0.0.0.0)
  * Running on http://127.0.0.1:5002
- * Running on http://192.168.4.122:5002
-[33mPress CTRL+C to quit[0m
-127.0.0.1 - - [23/Nov/2025 16:59:48] "POST /generate HTTP/1.1" 200 -
-127.0.0.1 - - [23/Nov/2025 17:00:06] "POST /generate HTTP/1.1" 200 -
+ * Running on http://192.184.192.135:5002
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:3.130.96.91 - - [24/Nov/2025 05:05:13] "[33mGET / HTTP/1.1[0m" 404 -
+INFO:werkzeug:3.130.96.91 - - [24/Nov/2025 05:06:22] "[33mGET / HTTP/1.1[0m" 404 -
+ERROR:werkzeug:3.130.96.91 - - [24/Nov/2025 05:07:44] code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00{\x01\x00\x00w\x03\x03\x90\x03OéÍ\x82aÈ{\x00\x86\x83\x1bÀD\x83sÜA¨øö¢Ä\x9c°µJ.¦GH\x00\x00\x1aÀ/À+À\x11À\x07À\x13À')
+INFO:werkzeug:3.130.96.91 - - [24/Nov/2025 05:07:44] "[31m[1m\x16\x03\x01\x00{\x01\x00\x00w\x03\x03\x90\x03OéÍ\x82aÈ{\x00\x86\x83\x1bÀD\x83sÜA¨øö¢Ä\x9c°µJ.¦GH\x00\x00\x1aÀ/À+À\x11À\x07À\x13À\x09À\x14À[0m" 400 -
+ERROR:werkzeug:3.130.96.91 - - [24/Nov/2025 05:09:15] code 400, message Bad request syntax ('SSH-2.0-Go')
+INFO:werkzeug:3.130.96.91 - - [24/Nov/2025 05:09:15] "[31m[1mSSH-2.0-Go[0m" 400 -
+ERROR:werkzeug:3.130.96.91 - - [24/Nov/2025 05:10:15] code 400, message Bad HTTP/0.9 request type ('\x16\x03\x01\x00{\x01\x00\x00w\x03\x03\x8a\x89éf¬óÓ\x8c\x05¹ö\x06ö')
+INFO:werkzeug:3.130.96.91 - - [24/Nov/2025 05:10:15] "[31m[1m\x16\x03\x01\x00{\x01\x00\x00w\x03\x03\x8a\x89éf¬óÓ\x8c\x05¹ö\x06ö\x0d\x02\x88Ôì¿aÙéwyâ/­n\x82\x18[0m" 400 -
+ERROR:werkzeug:64.62.156.202 - - [24/Nov/2025 05:58:27] code 400, message Bad request version ('À\x14À')
+INFO:werkzeug:64.62.156.202 - - [24/Nov/2025 05:58:27] "[31m[1m\x16\x03\x01\x00{\x01\x00\x00w\x03\x03\x12:3lÍ\x92¤*äZZAXöúÙ\x1bÑÉÞR(\x83 Z\x86lAù\x962î\x00\x00\x1aÀ/À+À\x11À\x07À\x13À\x09À\x14À[0m" 400 -
