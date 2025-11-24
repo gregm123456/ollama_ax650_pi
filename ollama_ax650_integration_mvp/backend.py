@@ -214,8 +214,16 @@ class AX650Backend:
         # Try to load tokenizer
         try:
             from transformers import AutoTokenizer
-            self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-            logger.info("Loaded AutoTokenizer")
+            # Qwen3-4B uses Qwen2Tokenizer, which might need trust_remote_code=True
+            # Also try loading from the model path directly
+            try:
+                self.tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
+                logger.info("Loaded AutoTokenizer from model path")
+            except Exception as e1:
+                logger.warning(f"Failed to load tokenizer from {model_path}: {e1}")
+                # Fallback to Qwen/Qwen2.5-3B-Instruct or similar if local fails
+                self.tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-3B-Instruct", trust_remote_code=True)
+                logger.info("Loaded AutoTokenizer from HF Hub fallback")
         except Exception as e:
             logger.warning(f"Could not load AutoTokenizer: {e}")
 
