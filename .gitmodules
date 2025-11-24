@@ -1,0 +1,6 @@
+[submodule "ax650_raspberry_pi_services"]
+	path = ax650_raspberry_pi_services
+	url = https://github.com/gregm123456/ax650_raspberry_pi_services
+[submodule "ollama"]
+	path = ollama
+	url = https://github.com/gregm123456/ollama
