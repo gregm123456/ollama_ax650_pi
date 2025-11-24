@@ -1,12 +1,18 @@
+
+
+
+
+
+
 # Project Status Report: Ollama on AX650/LLM8850
 **Date:** November 23, 2025
 
 ## 📊 Executive Summary
 **Overarching Goal:** Build a custom Linux Ollama for Raspberry Pi 5 that leverages AX650 hardware.
 
-**Current Phase:** **Step 3: Implement Backend Integration Layer** (In Progress)
+**Current Phase:** **Step 4: Ollama Build & Integration** (Starting)
 
-We have successfully established the hardware foundation and model loading capabilities. The backend server is operational and communicating with the NPU, but we are not yet generating tokens because the inference loop logic is pending implementation.
+We have successfully implemented the backend integration layer. The Python backend now loads the Qwen3-4B model on the AX650 NPU and successfully generates text using a custom autoregressive inference loop. We have overcome data type mismatches (bfloat16 vs float32) and validated end-to-end text generation via the Python API.
 
 ## ✅ Accomplishments
 1.  **Hardware Access (Step 2 & 6):**
@@ -15,20 +21,17 @@ We have successfully established the hardware foundation and model loading capab
     *   Environment variables and permissions (`source /etc/profile`) are resolved.
 
 2.  **Backend Infrastructure (Step 3):**
-    *   **Model Loading:** **SUCCESS.** The backend successfully loads the Qwen3-4B model (36 layers) into NPU memory. This validates the most complex part of the integration.
-    *   **API Surface:** The Flask server is up and exposing endpoints (`/generate`, `/load`) that match the design requirements.
-    *   **Memory Management:** Verified that the model occupies NPU memory and initializes KV caches correctly.
-    *   **Dependencies:** `axengine`, `pyaxcl`, `transformers`, `accelerate`, `protobuf`, `sentencepiece`, and `tiktoken` are installed and working in the virtual environment.
+    *   **Model Loading:** **SUCCESS.** The backend successfully loads the Qwen3-4B model (36 layers) into NPU memory.
+    *   **Inference Loop:** **SUCCESS.** Implemented full autoregressive generation loop in `backend.py`.
+        *   Handles tokenization/detokenization.
+        *   Manages KV cache state across 36 layers.
+        *   Correctly handles NPU data type requirements (bfloat16 inputs).
+        *   Implements sampling (temperature, top_k, top_p).
+    *   **Validation:** Verified text generation with `test_inference_loop.py`.
+        *   Prompt: "The capital of France is" -> Response: " city of Paris. The capital of Germany is Berlin"
 
 ## ⚠️ Current Blocker / Immediate Gap
-The backend currently stops *after* loading. The actual autoregressive inference loop (the logic that runs the 36 layers repeatedly to generate text token-by-token) is currently a placeholder in `backend.py`.
-
-Response from test:
-```json
-{'text': 'Qwen3-4B Model Loaded (36 layers). Ready for inference loop implementation.'}
-```
-
-**Status:** The "gun is loaded," but the "trigger mechanism" (inference loop) is not yet implemented.
+None. The backend is functional. The next major gap is the integration with the main Ollama binary (Go).
 
 ## 📋 Roadmap Alignment
 
@@ -36,19 +39,19 @@ Response from test:
 | :--- | :--- | :--- | :--- |
 | **1. Architecture** | Analyze Ollama & SDKs | ✅ **Done** | Selected Python "Sidecar" approach. |
 | **2. SDK Eval** | Review PyAXEngine/AXCL | ✅ **Done** | Using `pyaxengine` + `axcl`. |
-| **3. Backend** | **Implement Custom Backend** | 🟡 **80%** | Model loads ✅. **Inference Loop Missing ❌.** |
-| **4. Ollama Build** | Update Ollama Build/Deploy | 🔴 **Pending** | Need to modify Ollama (Go) to talk to Python backend. |
+| **3. Backend** | **Implement Custom Backend** | ✅ **Done** | **Inference Loop Working.** |
+| **4. Ollama Build** | Update Ollama Build/Deploy | 🟡 **Next** | Need to modify Ollama (Go) to talk to Python backend. |
 | **5. Health** | Device Monitoring | 🟡 **Partial** | Basic health check exists; deep integration pending. |
-| **6. Validation** | End-to-End Hardware Test | 🔴 **Pending** | Cannot test until inference loop is active. |
+| **6. Validation** | End-to-End Hardware Test | 🟡 **Partial** | Python layer validated. Full Ollama integration pending. |
 
 ## ⏭️ Immediate Next Steps
 
-To move from "Model Loaded" to "Text Generated", we must complete **Step 3**:
+We are now ready to proceed to **Step 4**:
 
-1.  **Implement the Inference Loop:** Modify `backend.py` to replace the placeholder message with the actual `while` loop that:
-    *   Tokenizes input.
-    *   Runs the prefill (first pass).
-    *   Runs the decode loop (layer-by-layer execution on NPU).
-    *   Detokenizes and returns text.
+1.  **Modify Ollama (Go):**
+    *   Create a new "runner" or "adapter" in the Ollama Go codebase.
+    *   Instead of spawning `llama.cpp`, it should spawn (or connect to) our `backend.py` Flask server.
+    *   Map Ollama's API requests to our backend's `/load` and `/generate` endpoints.
 
-Once that is working and we see actual text output from `curl`, we proceed to **Step 4**: modifying the Ollama Go source code to treat this Python script as its "engine."
+2.  **Packaging:**
+    *   Ensure the Python environment and dependencies are bundled or easily installable with the Ollama binary.

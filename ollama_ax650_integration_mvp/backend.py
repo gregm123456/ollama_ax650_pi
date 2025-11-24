@@ -15,6 +15,9 @@ import json
 import logging
 from flask import Flask, request, jsonify
 import numpy as np
+import torch
+from transformers import AutoTokenizer
+import ml_dtypes
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -31,6 +34,8 @@ class AX650Backend:
         self.v_caches = None
         self.embedding_weights = None
         self.tokenizer = None
+        self.layers = []
+        self.post_model = None
         
         # Try to import manufacturer python bindings
         self.backend_type = None
@@ -111,6 +116,7 @@ class AX650Backend:
             self.reset_device(0)
             self.session = None
             self.layers = []
+            self.post_model = None
         
         self.model_path = model_path
         
@@ -171,8 +177,12 @@ class AX650Backend:
         if os.path.exists(embed_path):
             try:
                 # Assuming shape [151936, 2560] from docs
-                self.embedding_weights = np.fromfile(embed_path, dtype=np.uint16).reshape(151936, 2560)
-                logger.info(f"Loaded bfloat16 embeddings from {embed_path}")
+                # Load as uint16 (bfloat16 representation) then convert to float32
+                raw_data = np.fromfile(embed_path, dtype=np.uint16)
+                # Convert bfloat16 to float32 using torch because numpy doesn't support bfloat16 well
+                tensor = torch.from_file(embed_path, shared=False, size=151936*2560, dtype=torch.bfloat16)
+                self.embedding_weights = tensor.view(151936, 2560).float().numpy()
+                logger.info(f"Loaded bfloat16 embeddings from {embed_path} and converted to float32")
             except Exception as e:
                 logger.error(f"Failed to load bin embeddings: {e}")
         
@@ -213,7 +223,6 @@ class AX650Backend:
         
         # Try to load tokenizer
         try:
-            from transformers import AutoTokenizer
             # Qwen3-4B uses Qwen2Tokenizer, which might need trust_remote_code=True
             # Also try loading from the model path directly
             try:
@@ -231,20 +240,17 @@ class AX650Backend:
         return {"status": "loaded", "model": model_path, "type": "qwen3-4b", "layers": len(self.layers)}
 
     
-    def _initialize_kv_caches(self, num_layers=32, kv_dim=2048, max_seq_len=1023):
+    def _initialize_kv_caches(self, num_layers=32, kv_dim=1024, max_seq_len=1024):
         """Initialize KV caches for LLM inference.
         
         These dimensions should match your model architecture.
-        For Qwen3-4B: typically 32 layers, hidden_size=3072, num_kv_heads=4
-        Adjust based on actual model config.
+        For Qwen3-4B: typically 36 layers, hidden_size=2560, kv_dim=1024
         """
-        try:
-            from ml_dtypes import bfloat16
-            dtype = bfloat16
-        except ImportError:
-            dtype = np.float16
-            logger.warning("ml_dtypes not available, using float16 for KV cache")
+        # Use bfloat16 for KV cache to match model expectation
+        dtype = ml_dtypes.bfloat16
         
+        # Cache shape: [1, max_seq_len, kv_dim]
+        # We maintain the full buffer here
         self.k_caches = [
             np.zeros((1, max_seq_len, kv_dim), dtype=dtype)
             for _ in range(num_layers)
@@ -331,9 +337,156 @@ class AX650Backend:
         if not self.tokenizer:
             return "Error: Tokenizer not loaded (transformers required)"
             
-        # Placeholder for the complex 36-layer loop
-        # This requires managing KV cache for 36 layers and running them sequentially
-        return f"Qwen3-4B Model Loaded ({len(self.layers)} layers). Ready for inference loop implementation."
+        logger.info(f"Starting Qwen3-4B generation for prompt: {prompt[:50]}...")
+        
+        # 1. Tokenize
+        input_ids = self.tokenizer.encode(prompt)
+        generated_ids = []
+        
+        # 2. Reset KV caches (zero out)
+        for k in self.k_caches: k.fill(0)
+        for v in self.v_caches: v.fill(0)
+        
+        current_pos = 0
+        
+        # 3. Prefill (process prompt tokens)
+        # Note: This model seems to process one token at a time (batch=1, seq=1)
+        # We must loop through the prompt.
+        logger.info(f"Prefilling {len(input_ids)} tokens...")
+        
+        next_token = None
+        
+        # Combined loop for prefill + generation
+        # We feed input_ids[i] during prefill, and sampled token during generation
+        
+        total_steps = len(input_ids) + max_tokens
+        
+        for step in range(total_steps):
+            # Determine input token
+            if step < len(input_ids):
+                token_id = input_ids[step]
+                is_prefill = True
+            else:
+                token_id = next_token
+                is_prefill = False
+                
+            if step >= len(input_ids) + max_tokens:
+                break
+                
+            # Stop if EOS generated
+            if not is_prefill and (token_id == self.tokenizer.eos_token_id or token_id in [151643, 151645]): # Qwen EOS
+                logger.info("EOS token generated")
+                break
+            
+            # Prepare inputs
+            # Embedding lookup
+            # embedding_weights is float32 [vocab, hidden]
+            # Convert to bfloat16 for NPU input
+            hidden_state = self.embedding_weights[token_id].reshape(1, 1, 2560).astype(ml_dtypes.bfloat16)
+            
+            # Prepare mask
+            # Mask is [1, 1, 1024]. 1 for valid, 0 for masked.
+            # We want 1s up to current_pos (inclusive)
+            # Use bfloat16 as requested by runtime
+            mask = np.zeros((1, 1, 1024), dtype=ml_dtypes.bfloat16)
+            mask[:, :, :current_pos+1] = 1.0
+            
+            # Prepare indices
+            # Explicitly cast to uint32 and verify
+            indices = np.array([[current_pos]], dtype=np.uint32)
+            
+            # Run through layers
+            for i, layer_sess in enumerate(self.layers):
+                # Prepare KV cache input: [1, 1023, 1024]
+                # We pass the first 1023 elements of our 1024 buffer
+                # They are already bfloat16 from initialization
+                k_in = self.k_caches[i][:, :1023, :]
+                v_in = self.v_caches[i][:, :1023, :]
+                
+                inputs = {
+                    "input": hidden_state,
+                    "K_cache": k_in,
+                    "V_cache": v_in,
+                    "indices": indices,
+                    "mask": mask
+                }
+                
+                # Run layer
+                outputs = layer_sess.run(None, inputs)
+                
+                # Outputs: K_cache_out, V_cache_out, output
+                # Map outputs by name or index. 
+                # Usually get_outputs() order is stable. 
+                # Based on inspection: K_cache_out, V_cache_out, output
+                # But run() returns list. Let's assume order matches inspection or use dict if supported?
+                # axengine run returns list.
+                # Inspection order: K_cache_out, V_cache_out, output
+                
+                k_out = outputs[0]
+                v_out = outputs[1]
+                hidden_state = outputs[2]
+                
+                # Update KV cache
+                # k_out is [1, 1, 1024]
+                self.k_caches[i][:, current_pos, :] = k_out.reshape(1, 1024)
+                self.v_caches[i][:, current_pos, :] = v_out.reshape(1, 1024)
+            
+            # Run Post model
+            # Input: input [1, 1, 2560]
+            # Output: output [1, 1, 151936]
+            # Ensure hidden_state is bfloat16 (it should be from layer output, but verify)
+            post_out = self.post_model.run(None, {"input": hidden_state})
+            logits = post_out[0] # [1, 1, 151936]
+            
+            # Sample next token
+            next_token = self._sample(logits, temperature, top_p, top_k)
+            
+            if not is_prefill:
+                generated_ids.append(next_token)
+                
+            current_pos += 1
+            if current_pos >= 1023:
+                logger.warning("Context length limit reached")
+                break
+                
+        # Decode generated tokens
+        output_text = self.tokenizer.decode(generated_ids, skip_special_tokens=True)
+        return output_text
+
+    def _sample(self, logits, temperature, top_p, top_k):
+        """Sample next token from logits."""
+        # logits shape: [1, 1, vocab_size]
+        # Convert ml_dtypes.bfloat16 to float32 for torch compatibility
+        if logits.dtype == ml_dtypes.bfloat16:
+            logits = logits.astype(np.float32)
+
+        logits = torch.tensor(logits[0, 0, :])
+        
+        # Apply temperature
+        if temperature > 0:
+            logits = logits / temperature
+        
+        # Top-K
+        if top_k > 0:
+            v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
+            logits[logits < v[-1]] = -float('Inf')
+            
+        # Top-P (Nucleus)
+        if top_p < 1.0:
+            sorted_logits, sorted_indices = torch.sort(logits, descending=True)
+            cumulative_probs = torch.cumsum(torch.softmax(sorted_logits, dim=-1), dim=-1)
+            sorted_indices_to_remove = cumulative_probs > top_p
+            # Shift the indices to the right to keep also the first token above the threshold
+            sorted_indices_to_remove[..., 1:] = sorted_indices_to_remove[..., :-1].clone()
+            sorted_indices_to_remove[..., 0] = 0
+            indices_to_remove = sorted_indices[sorted_indices_to_remove]
+            logits[indices_to_remove] = -float('Inf')
+            
+        # Sample
+        probs = torch.softmax(logits, dim=-1)
+        next_token = torch.multinomial(probs, num_samples=1).item()
+        return next_token
+
 
     
     def _generate_pyaxcl(self, prompt: str, max_tokens: int):
