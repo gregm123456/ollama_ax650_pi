@@ -213,3 +213,6 @@ INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a
 INFO:werkzeug:[33mPress CTRL+C to quit[0m
 INFO:__main__:Starting Qwen3-4B generation for prompt: system: You are Wile E. Coyote, and your defining ...
 INFO:__main__:Prefilling 412 tokens...
+INFO:werkzeug:127.0.0.1 - - [24/Nov/2025 18:05:13] "POST /generate HTTP/1.1" 200 -
+ERROR:werkzeug:65.49.1.10 - - [24/Nov/2025 18:16:29] code 400, message Bad request version ('Ð\x04')
+INFO:werkzeug:65.49.1.10 - - [24/Nov/2025 18:16:29] "[31m[1m\x16\x03\x01\x00{\x01\x00\x00w\x03\x03ôh\x8cf¸x±GªäÒÖÍu1\x0bÞ«å*º½ajyÚ\x8b­\x0dÐ\x04[0m" 400 -
