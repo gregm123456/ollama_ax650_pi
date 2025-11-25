@@ -1,4 +1,0 @@
-* hf tokenizer? but the manufacturer provides tokenizer. shouldn't that be better?
-* um...the output is "low quality" for the model. Can this be related to the tokenizer not being the manufacturer's tokenizer?
-* it only ever seems to use about 27% NPU load. Is that a function of how we're calling it? Can we put the whole thing to work?
-* the chat completion is shockingly slow, many times slower than when using the manufacturer's runtime for the exact same optimized model. Is it because our implementation is in python and not C?
