@@ -1,0 +1,6 @@
+prompt,tokenizer,encode_time_s,num_tokens,tokens,decode_time_s,decoded_preview
+Write a short friendly greeting to a user.,model,0.000928,9,16594 257 1790 8030 31933 284 257 2836 13,0.000115,Write a short friendly greeting to a user.
+Summarize the plot of 'The Little Prince' in two sentences.,model,0.000225,15,13065 3876 1096 262 7110 286 705 464 7703 9005 6 287 734 13439 13,0.000033,Summarize the plot of 'The Little Prince' in two sentences.
+Explain how a convolutional neural network works in simple terms.,model,0.000172,14,18438 391 703 257 3063 2122 282 17019 3127 2499 287 2829 2846 13,0.000027,Explain how a convolutional neural network works in simple terms.
+List five steps to optimize inference throughput on an NPU device.,model,0.000203,13,8053 1936 4831 284 27183 32278 41997 319 281 399 5105 3335 13,0.000029,List five steps to optimize inference throughput on an NPU device.
+Write a 3-paragraph persuasive email convincing a manager to budget for hardware upgrades.,model,0.000184,16,16594 257 513 12 20360 40116 3053 17101 257 4706 284 4466 329 6890 16608 13,0.000028,Write a 3-paragraph persuasive email convincing a manager to budget for hardware upgrades.

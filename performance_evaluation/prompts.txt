@@ -1,0 +1,5 @@
+Write a short friendly greeting to a user.
+Summarize the plot of 'The Little Prince' in two sentences.
+Explain how a convolutional neural network works in simple terms.
+List five steps to optimize inference throughput on an NPU device.
+Write a 3-paragraph persuasive email convincing a manager to budget for hardware upgrades.

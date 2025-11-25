@@ -134,3 +134,22 @@ Refer to these submodules and documents for:
 
 **Next Steps:**  
 Begin with workflow mapping and instrumentation, then proceed to controlled profiling and targeted optimization based on findings.
+
+---
+
+## Progress & Findings (Nov 24, 2025)
+
+### 1. Tokenizer Comparison
+- **Experiment:** Compared HuggingFace `AutoTokenizer` (fallback) vs. Manufacturer's local tokenizer (`Qwen3-4B/qwen3_tokenizer`) on 5 standard prompts.
+- **Results:**
+  - **Token IDs:** Identical for all prompts.
+  - **Performance:** Negligible difference. Encode ~0.2-1.0ms, Decode ~0.03-0.12ms.
+- **Conclusion:** Tokenizer choice is **not** the bottleneck or cause of quality issues.
+
+### 2. NPU Profiling (Initial Trace)
+- **Experiment:** Profiled NPU usage (`axcl-smi`) during generation of 5 prompts (max_tokens=64).
+- **Results:**
+  - **NPU Utilization:** Stabilized at **27-29%**.
+  - **Throughput:** Very slow, approx. **56 seconds per prompt**.
+  - **Quality:** Outputs are truncated or malformed (e.g., "reeting..."), suggesting issues in the generation loop or post-processing.
+- **Diagnosis:** The NPU is significantly underutilized. The bottleneck likely lies in the Python-side orchestration (per-token overhead, data movement) rather than raw NPU compute capacity.

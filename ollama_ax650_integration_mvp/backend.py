@@ -17,6 +17,7 @@ from flask import Flask, request, jsonify
 import numpy as np
 import torch
 from transformers import AutoTokenizer
+import time
 import ml_dtypes
 
 logging.basicConfig(level=logging.INFO)
@@ -339,8 +340,20 @@ class AX650Backend:
             
         logger.info(f"Starting Qwen3-4B generation for prompt: {prompt[:50]}...")
         
+        # Timing accumulators
+        t_start_total = time.perf_counter()
+        t_tokenize = 0.0
+        t_embedding = 0.0
+        t_layer_runs = 0.0
+        t_post = 0.0
+        t_sampling = 0.0
+        t_detokenize = 0.0
+        n_npu_calls = 0
+
         # 1. Tokenize
+        t0 = time.perf_counter()
         input_ids = self.tokenizer.encode(prompt)
+        t_tokenize = time.perf_counter() - t0
         generated_ids = []
         
         # 2. Reset KV caches (zero out)
@@ -382,7 +395,9 @@ class AX650Backend:
             # Embedding lookup
             # embedding_weights is float32 [vocab, hidden]
             # Convert to bfloat16 for NPU input
+            t_e0 = time.perf_counter()
             hidden_state = self.embedding_weights[token_id].reshape(1, 1, 2560).astype(ml_dtypes.bfloat16)
+            t_embedding += time.perf_counter() - t_e0
             
             # Prepare mask
             # Mask is [1, 1, 1024]. 1 for valid, 0 for masked.
@@ -412,7 +427,10 @@ class AX650Backend:
                 }
                 
                 # Run layer
+                t_layer0 = time.perf_counter()
                 outputs = layer_sess.run(None, inputs)
+                t_layer_runs += time.perf_counter() - t_layer0
+                n_npu_calls += 1
                 
                 # Outputs: K_cache_out, V_cache_out, output
                 # Map outputs by name or index. 
@@ -435,11 +453,16 @@ class AX650Backend:
             # Input: input [1, 1, 2560]
             # Output: output [1, 1, 151936]
             # Ensure hidden_state is bfloat16 (it should be from layer output, but verify)
+            t_post0 = time.perf_counter()
             post_out = self.post_model.run(None, {"input": hidden_state})
+            t_post += time.perf_counter() - t_post0
+            n_npu_calls += 1
             logits = post_out[0] # [1, 1, 151936]
             
             # Sample next token
+            t_sample0 = time.perf_counter()
             next_token = self._sample(logits, temperature, top_p, top_k)
+            t_sampling += time.perf_counter() - t_sample0
             
             if not is_prefill:
                 generated_ids.append(next_token)
@@ -450,7 +473,20 @@ class AX650Backend:
                 break
                 
         # Decode generated tokens
+        t_d0 = time.perf_counter()
         output_text = self.tokenizer.decode(generated_ids, skip_special_tokens=True)
+        t_detokenize = time.perf_counter() - t_d0
+
+        t_total = time.perf_counter() - t_start_total
+
+        # Log profiling summary
+        try:
+            logger.info("Generation timing summary: total=%.3fs, tokenize=%.4fs, embedding=%.4fs, layer_runs=%.4fs, post=%.4fs, sampling=%.4fs, detokenize=%.4fs, npu_calls=%d, steps=%d",
+                        t_total, t_tokenize, t_embedding, t_layer_runs, t_post, t_sampling, t_detokenize, n_npu_calls, len(input_ids) + len(generated_ids))
+        except Exception:
+            # Ensure we never crash profiling
+            pass
+
         return output_text
 
     def _sample(self, logits, temperature, top_p, top_k):

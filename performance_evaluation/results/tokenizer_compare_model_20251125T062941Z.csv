@@ -1,0 +1,2 @@
+prompt,tokenizer,encode_time_s,num_tokens,tokens,decode_time_s,decoded_preview
+Hello world,model,0.001237,2,15496 995,0.000164,Hello world
