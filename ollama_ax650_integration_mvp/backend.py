@@ -88,7 +88,6 @@ def start_runtime(model_path=None):
             "--tokens_embed_num", "151936",
             "--tokens_embed_size", "2560",
             "--use_mmap_load_embed", "1",
-            "--live_print", "1",
             "--devices", "0"
         ]
     else:
