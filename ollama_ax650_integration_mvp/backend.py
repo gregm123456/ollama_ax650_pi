@@ -48,7 +48,8 @@ def start_runtime(model_path=None):
         CURRENT_MODEL_PATH = model_path
         
     cwd = os.path.dirname(os.path.abspath(__file__))
-    real_binary = os.path.join(cwd, "main_api_ax650")
+    # Use the AXCL binary for M.2 card (Raspberry Pi 5 + AX650/LLM8850)
+    real_binary = os.path.join(cwd, "main_api_axcl_aarch64")
     mock_script = os.path.join(cwd, "mock_main_api.py")
     
     cmd = []
@@ -65,11 +66,31 @@ def start_runtime(model_path=None):
             
     if use_real:
         logger.info(f"Launching REAL runtime: {real_binary}")
-        # TODO: Construct proper arguments for real binary based on model path
-        # For now, we assume the binary or wrapper script handles defaults or env vars
-        # If using raw main_api_ax650, we need to pass --template_filename_axmodel etc.
-        # This is a placeholder for Phase 2.
-        cmd = [real_binary] 
+        
+        # Path to model files (assuming they're in the reference_projects location)
+        model_base = os.path.join(
+            os.path.dirname(os.path.dirname(cwd)),
+            "ax650_raspberry_pi_services",
+            "reference_projects_and_documentation",
+            "Qwen3-4B",
+            "qwen3-4b-ax650"
+        )
+        
+        # Construct command with all required arguments
+        cmd = [
+            real_binary,
+            "--system_prompt", "You are Qwen, created by Alibaba Cloud. You are a helpful assistant.",
+            "--template_filename_axmodel", f"{model_base}/qwen3_p128_l%d_together.axmodel",
+            "--axmodel_num", "36",
+            "--url_tokenizer_model", "http://127.0.0.1:12345",
+            "--filename_post_axmodel", f"{model_base}/qwen3_post.axmodel",
+            "--filename_tokens_embed", f"{model_base}/model.embed_tokens.weight.bfloat16.bin",
+            "--tokens_embed_num", "151936",
+            "--tokens_embed_size", "2560",
+            "--use_mmap_load_embed", "1",
+            "--live_print", "1",
+            "--devices", "0"
+        ]
     else:
         logger.info(f"Launching MOCK runtime: {mock_script}")
         cmd = [sys.executable, mock_script]

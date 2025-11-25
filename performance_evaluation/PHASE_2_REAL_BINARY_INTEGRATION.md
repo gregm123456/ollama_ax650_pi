@@ -18,56 +18,68 @@ The Hybrid Proxy Architecture has been implemented and verified using a Mock Ser
 
 ## 3. Execution Steps
 
-### Step 1: Acquire the Real Binary
+### Step 1: Acquire the Real Binary ✅ COMPLETE
 
-Since the GitHub mirror is missing the LFS blobs, we must download the binary directly from the source (HuggingFace).
-
-**Action:**
-1.  Clone the HuggingFace repository to a temporary location.
-2.  Extract the `main_api_ax650` binary.
-3.  Copy it to our integration folder.
+Downloaded the correct `main_api_axcl_aarch64` binary (1.8MB) from HuggingFace repo `AXERA-TECH/Qwen3-4B`.
 
 ```bash
-# Commands to execute
-cd /tmp
-# Clone depth 1 to save time/bandwidth, we only need the binary
-git clone --depth 1 https://huggingface.co/AXERA-TECH/Qwen3-4B-Int8
-cd Qwen3-4B-Int8
-git lfs pull  # Ensure LFS objects are downloaded
-
-# Copy to our workspace
-cp main_api_ax650 /home/robot/ollama_ax650_pi/ollama_ax650_integration_mvp/
-chmod +x /home/robot/ollama_ax650_pi/ollama_ax650_integration_mvp/main_api_ax650
+# Already completed - binary is in ollama_ax650_integration_mvp/main_api_axcl_aarch64
+ls -lh /home/robot/ollama_ax650_pi/ollama_ax650_integration_mvp/main_api_axcl_aarch64
+# -rwxr-xr-x 1 robot robot 1.8M Nov 25 12:36 main_api_axcl_aarch64
 ```
 
-### Step 2: Verify the Binary
+### Step 2: Start the Tokenizer Service
 
-Before integrating, verify the binary runs on this architecture.
+The C++ binary requires a separate tokenizer HTTP service running on port 12345.
 
 **Action:**
 ```bash
-cd /home/robot/ollama_ax650_pi/ollama_ax650_integration_mvp
-./main_api_ax650 --help
-# Or just run it briefly to see if it starts (it might fail without model args, but should execute)
+cd /home/robot/ollama_ax650_pi/ax650_raspberry_pi_services/reference_projects_and_documentation/Qwen3-4B
+
+# Install dependencies if needed
+pip install transformers jinja2
+
+# Start tokenizer (run in background or separate terminal)
+python3 qwen3_tokenizer_uid.py
+# Should see: Server running at http://0.0.0.0:12345
 ```
 
-### Step 3: Configure Proxy to Use Real Binary
+### Step 3: Configure Backend to Use Real Binary ✅ COMPLETE
 
-Update `backend.py` to point to the real binary instead of the mock script.
-
-**Action:**
-Edit `ollama_ax650_integration_mvp/backend.py`:
-
-```python
-# Configuration
-# Change this to False to use the real C++ binary
-USE_MOCK_SERVER = False 
-
-# Ensure this path matches the binary location
-REAL_BINARY_PATH = os.path.join(CURRENT_DIR, "main_api_ax650")
-```
+Backend has been updated to:
+- Point to `main_api_axcl_aarch64` (correct binary for M.2 card)
+- Construct full command-line arguments with model paths
+- Auto-detect binary and switch from mock mode
 
 ### Step 4: Integration Test
+
+**Terminal 1 - Start Tokenizer:**
+```bash
+cd /home/robot/ollama_ax650_pi/ollama_ax650_integration_mvp
+./start_tokenizer.sh
+# Wait for: "Server running at http://0.0.0.0:12345"
+```
+
+**Terminal 2 - Start Backend:**
+```bash
+cd /home/robot/ollama_ax650_pi/ollama_ax650_integration_mvp
+source ../.venv/bin/activate
+python backend.py
+# Should see: "Launching REAL runtime: .../main_api_axcl_aarch64"
+# Wait for: "Runtime initialized successfully"
+```
+
+**Terminal 3 - Run Test:**
+```bash
+cd /home/robot/ollama_ax650_pi
+./test_ollama_compatibility.py
+```
+
+**Expected Outcome:**
+- The C++ server starts and initializes the NPU (may take 30-60 seconds for model loading)
+- Test returns `200 OK`
+- Response contains actual generated text (not dummy/mock text)
+- Check logs for "LLM init start" and "init post axmodel ok"
 
 Run the compatibility test again. This time, the proxy will launch the real C++ server.
 
