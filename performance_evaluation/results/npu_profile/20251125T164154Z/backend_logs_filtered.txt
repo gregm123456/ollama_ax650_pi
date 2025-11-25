@@ -1,0 +1,279 @@
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: generate start, prompt_len=154
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: Starting Qwen3-4B generation for prompt: Hello, please write a short, helpful paragraph int...
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: Prefilling 27 tokens...
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=0 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=0 logits topk_ids=[25, 10944, 7, 82, 5122, 563, 11, 198, 7686, 279]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: saved logits to /tmp/8c67f9ac-4e78-4c5c-a479-bfbbedb8d212_logits_step0.npy
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=0 elapsed=1.087803s step_layer_time=0.910048s npu_calls=37
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=1 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=1 logits topk_ids=[358, 847, 1410, 1052, 323, 646, 1879, 1246, 419, 5019]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: saved logits to /tmp/8c67f9ac-4e78-4c5c-a479-bfbbedb8d212_logits_step1.npy
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=1 elapsed=1.860281s step_layer_time=0.716207s npu_calls=74
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=2 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=2 logits topk_ids=[1492, 3270, 646, 3291, 4226, 10339, 13, 1410, 5889, 14683]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: saved logits to /tmp/8c67f9ac-4e78-4c5c-a479-bfbbedb8d212_logits_step2.npy
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=2 elapsed=2.567500s step_layer_time=0.667566s npu_calls=111
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=3 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=3 logits topk_ids=[264, 458, 752, 279, 304, 369, 2494, 311, 323, 220]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=3 elapsed=3.290719s step_layer_time=0.672620s npu_calls=148
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=4 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=4 logits topk_ids=[220, 3364, 2805, 5316, 32794, 6524, 2025, 13027, 2038, 1602]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=4 elapsed=4.030302s step_layer_time=0.679464s npu_calls=185
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=5 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=5 logits topk_ids=[3364, 11, 323, 14311, 32794, 8895, 5316, 4549, 21276, 220]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=5 elapsed=4.767247s step_layer_time=0.678790s npu_calls=222
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=6 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=6 logits topk_ids=[11657, 4285, 656, 69846, 15173, 22570, 6785, 220, 2464, 10226]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=6 elapsed=5.495987s step_layer_time=0.682602s npu_calls=259
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=7 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=7 logits topk_ids=[11, 323, 1943, 16148, 2033, 4549, 16800, 1467, 14311, 9851]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=7 elapsed=6.237759s step_layer_time=0.683219s npu_calls=296
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=8 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=8 logits topk_ids=[429, 369, 304, 311, 911, 25021, 448, 13, 320, 11]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=8 elapsed=6.972871s step_layer_time=0.681584s npu_calls=333
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=9 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=9 logits topk_ids=[279, 6133, 264, 697, 419, 7037, 847, 1817, 752, 458]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=9 elapsed=7.701708s step_layer_time=0.682559s npu_calls=370
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=10 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=10 logits topk_ids=[13, 323, 11, 624, 311, 382, 438, 369, 304, 429]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=10 elapsed=8.427429s step_layer_time=0.678582s npu_calls=407
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=11 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=11 logits topk_ids=[264, 458, 279, 2926, 40135, 4325, 847, 697, 362, 29405]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=11 elapsed=9.161790s step_layer_time=0.682526s npu_calls=444
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=12 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=12 logits topk_ids=[10950, 501, 4108, 4128, 6584, 4345, 11657, 6002, 6236, 2745]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=12 elapsed=9.893166s step_layer_time=0.681398s npu_calls=481
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=13 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=13 logits topk_ids=[11, 323, 15235, 17847, 10950, 4108, 6236, 1697, 6002, 501]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=13 elapsed=10.631579s step_layer_time=0.684122s npu_calls=518
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=14 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=14 logits topk_ids=[13, 624, 11, 382, 879, 323, 429, 448, 6941, 311]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=14 elapsed=11.356726s step_layer_time=0.677798s npu_calls=555
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=15 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=15 logits topk_ids=[697, 10339, 25021, 6286, 1221, 3291, 279, 44291, 10161, 2548]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=15 elapsed=12.095385s step_layer_time=0.679337s npu_calls=592
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=16 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=16 logits topk_ids=[279, 697, 264, 518, 1045, 678, 1493, 2326, 304, 1128]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=16 elapsed=12.826821s step_layer_time=0.681683s npu_calls=629
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=17 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=17 logits topk_ids=[315, 11652, 476, 42365, 3151, 3405, 311, 1555, 6573, 3110]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=17 elapsed=13.566567s step_layer_time=0.679235s npu_calls=666
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=18 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=18 logits topk_ids=[315, 504, 11652, 429, 13, 911, 624, 476, 11, 304]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=18 elapsed=14.306968s step_layer_time=0.680803s npu_calls=703
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=19 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=19 logits topk_ids=[1246, 264, 697, 2494, 1128, 279, 979, 458, 10950, 1817]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=19 elapsed=15.036967s step_layer_time=0.677539s npu_calls=740
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=20 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=20 logits topk_ids=[882, 3405, 10950, 3383, 6534, 3151, 6785, 9947, 4185, 5390]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=20 elapsed=15.770351s step_layer_time=0.679194s npu_calls=777
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=21 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=21 logits topk_ids=[2311, 1985, 5702, 3166, 1509, 1992, 5492, 3910, 1917, 3383]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=21 elapsed=16.498104s step_layer_time=0.677675s npu_calls=814
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=22 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=22 logits topk_ids=[476, 311, 429, 13, 369, 624, 498, 323, 382, 11]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=22 elapsed=17.236034s step_layer_time=0.685262s npu_calls=851
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=23 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=23 logits topk_ids=[2548, 1492, 14907, 4226, 279, 387, 9934, 633, 16579, 15186]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=23 elapsed=17.973622s step_layer_time=0.679618s npu_calls=888
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=24 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=24 logits topk_ids=[264, 279, 697, 4325, 13, 3847, 624, 979, 11, 382]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=24 elapsed=18.700614s step_layer_time=0.680929s npu_calls=925
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=25 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=25 logits topk_ids=[13, 624, 382, 11, 311, 323, 304, 271, 198, 369]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=25 elapsed=19.438856s step_layer_time=0.680240s npu_calls=962
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=26 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=26 logits topk_ids=[7281, 21927, 358, 576, 5209, 4710, 7684, 7405, 479, 220]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=26 elapsed=20.186688s step_layer_time=0.684152s npu_calls=999
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=27 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=27 logits topk_ids=[11, 2924, 4486, 1281, 6286, 912, 3270, 6099, 3410, 5978]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=27 elapsed=20.926048s step_layer_time=0.684204s npu_calls=1036
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=28 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=28 logits topk_ids=[4486, 2924, 358, 2666, 387, 1281, 6099, 1513, 6286, 1246]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=28 elapsed=21.658058s step_layer_time=0.677028s npu_calls=1073
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=29 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=29 logits topk_ids=[1281, 2924, 3270, 5978, 6286, 2548, 5889, 387, 912, 5648]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=29 elapsed=22.386684s step_layer_time=0.677965s npu_calls=1110
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=30 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=30 logits topk_ids=[264, 2441, 279, 825, 1378, 458, 304, 697, 2326, 220]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=30 elapsed=23.119500s step_layer_time=0.676532s npu_calls=1147
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=31 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=31 logits topk_ids=[2805, 14311, 2086, 4428, 2033, 10950, 11657, 9814, 2421, 8651]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=31 elapsed=23.842494s step_layer_time=0.676183s npu_calls=1184
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=32 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=32 logits topk_ids=[11, 14311, 2033, 10950, 323, 3110, 9851, 4226, 16148, 320]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=32 elapsed=24.565528s step_layer_time=0.675815s npu_calls=1221
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=33 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=33 logits topk_ids=[10950, 11657, 25836, 47787, 38219, 35581, 32345, 42666, 48050, 69846]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=33 elapsed=25.302126s step_layer_time=0.677859s npu_calls=1258
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=34 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=34 logits topk_ids=[14311, 2033, 9851, 11, 3405, 11652, 16148, 4226, 16800, 3110]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=34 elapsed=26.023732s step_layer_time=0.674918s npu_calls=1295
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=35 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=35 logits topk_ids=[31918, 304, 29338, 369, 911, 429, 25021, 35764, 311, 448]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=35 elapsed=26.751395s step_layer_time=0.679133s npu_calls=1332
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=36 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=36 logits topk_ids=[6133, 264, 279, 697, 7037, 1817, 847, 825, 2441, 56569]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=36 elapsed=27.474451s step_layer_time=0.675182s npu_calls=1369
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=37 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=37 logits topk_ids=[438, 1549, 323, 304, 11, 448, 311, 13, 429, 1667]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=37 elapsed=28.194996s step_layer_time=0.674077s npu_calls=1406
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=38 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=38 logits topk_ids=[264, 458, 279, 4325, 2441, 2494, 198, 10950, 2176, 11657]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=38 elapsed=28.928781s step_layer_time=0.676769s npu_calls=1443
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=39 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=39 logits topk_ids=[11657, 10950, 1602, 40966, 803, 32345, 6584, 6001, 48417, 198]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=39 elapsed=29.653412s step_layer_time=0.677963s npu_calls=1480
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=40 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=40 logits topk_ids=[17847, 11, 323, 7789, 15235, 198, 12994, 271, 16391, 714]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=40 elapsed=30.391785s step_layer_time=0.677488s npu_calls=1517
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=41 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=41 logits topk_ids=[323, 448, 304, 11, 714, 13, 421, 979, 369, 879]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=41 elapsed=31.113141s step_layer_time=0.675494s npu_calls=1554
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=42 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=42 logits topk_ids=[2924, 2670, 279, 997, 835, 264, 448, 5646, 3070, 198]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=42 elapsed=31.844853s step_layer_time=0.676916s npu_calls=1591
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=43 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=43 logits topk_ids=[825, 279, 264, 1378, 429, 304, 2441, 458, 24038, 2326]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=43 elapsed=32.581430s step_layer_time=0.678741s npu_calls=1628
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=44 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=44 logits topk_ids=[3110, 11102, 11827, 27682, 198, 6077, 8687, 3405, 271, 7724]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=44 elapsed=33.306991s step_layer_time=0.676456s npu_calls=1665
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=45 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=45 logits topk_ids=[315, 198, 271, 11102, 13, 1112, 9338, 1055, 369, 59735]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=45 elapsed=34.039466s step_layer_time=0.673925s npu_calls=1702
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=46 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=46 logits topk_ids=[264, 279, 458, 64, 11102, 198, 271, 1817, 697, 1128]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=46 elapsed=34.771488s step_layer_time=0.675023s npu_calls=1739
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=47 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=47 logits topk_ids=[11102, 11827, 85347, 6934, 11223, 198, 312, 9338, 50662, 3070]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=47 elapsed=35.490451s step_layer_time=0.671690s npu_calls=1776
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=48 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=48 logits topk_ids=[3405, 1790, 1917, 198, 7841, 15846, 9338, 4226, 4755, 271]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=48 elapsed=36.312386s step_layer_time=0.740700s npu_calls=1813
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=49 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=49 logits topk_ids=[311, 13, 369, 304, 624, 429, 198, 382, 323, 11]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=49 elapsed=37.024140s step_layer_time=0.669352s npu_calls=1850
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=50 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=50 logits topk_ids=[2548, 1073, 4588, 17064, 10161, 279, 198, 264, 20437, 438]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=50 elapsed=37.731732s step_layer_time=0.667238s npu_calls=1887
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=51 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=51 logits topk_ids=[1790, 13, 279, 198, 3600, 4529, 624, 16913, 3070, 304]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=51 elapsed=38.439392s step_layer_time=0.665005s npu_calls=1924
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=52 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=52 logits topk_ids=[13, 624, 382, 11, 304, 369, 2572, 271, 198, 421]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=52 elapsed=39.147208s step_layer_time=0.665034s npu_calls=1961
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=53 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=53 logits topk_ids=[358, 13824, 5005, 1084, 8670, 21927, 1597, 320, 220, 7405]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=53 elapsed=39.862680s step_layer_time=0.667056s npu_calls=1998
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=54 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=54 logits topk_ids=[2776, 1744, 4249, 5293, 1490, 36879, 13686, 1184, 614, 1366]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=54 elapsed=40.576513s step_layer_time=0.667012s npu_calls=2035
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=55 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=55 logits topk_ids=[14589, 264, 21815, 537, 10161, 2167, 1602, 4460, 279, 2704]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=55 elapsed=41.290066s step_layer_time=0.666969s npu_calls=2072
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=56 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=56 logits topk_ids=[11, 369, 421, 714, 13, 429, 358, 911, 481, 498]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=56 elapsed=42.009944s step_layer_time=0.673501s npu_calls=2109
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=57 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=57 logits topk_ids=[714, 358, 498, 429, 1052, 279, 7196, 419, 432, 8365]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=57 elapsed=42.735136s step_layer_time=0.676649s npu_calls=2146
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=58 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=58 logits topk_ids=[358, 697, 498, 279, 432, 419, 429, 1052, 847, 600]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=58 elapsed=43.471834s step_layer_time=0.677177s npu_calls=2183
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=59 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=59 logits topk_ids=[646, 4157, 2776, 1184, 686, 3278, 2765, 1513, 5293, 1744]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=59 elapsed=44.196198s step_layer_time=0.675466s npu_calls=2220
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=60 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=60 logits topk_ids=[944, 1405, 1172, 537, 6, 17323, 1490, 16095, 4605, 1]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=60 elapsed=44.925031s step_layer_time=0.677821s npu_calls=2257
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=61 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=61 logits topk_ids=[653, 20423, 3270, 13153, 3410, 1492, 5889, 2803, 2736, 22513]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=61 elapsed=45.665487s step_layer_time=0.678220s npu_calls=2294
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=62 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=62 logits topk_ids=[429, 279, 419, 9033, 6896, 1128, 2176, 2938, 198, 271]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=62 elapsed=46.397534s step_layer_time=0.675350s npu_calls=2331
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=63 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=63 logits topk_ids=[13, 624, 1576, 382, 11, 438, 358, 2474, 198, 271]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=63 elapsed=47.120606s step_layer_time=0.675592s npu_calls=2368
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=64 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=64 logits topk_ids=[358, 1446, 21927, 576, 1084, 2938, 2619, 5209, 220, 7684]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=64 elapsed=47.857699s step_layer_time=0.678969s npu_calls=2405
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=65 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=65 logits topk_ids=[2776, 646, 1079, 1184, 3278, 686, 614, 1172, 1035, 4249]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=65 elapsed=48.591833s step_layer_time=0.676150s npu_calls=2442
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=66 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=66 logits topk_ids=[1101, 264, 1172, 4460, 458, 14589, 537, 2087, 9966, 1083]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=66 elapsed=49.312413s step_layer_time=0.672545s npu_calls=2479
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=67 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=67 logits topk_ids=[4128, 3460, 10950, 1207, 15235, 3175, 11434, 20286, 11657, 4108]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=67 elapsed=50.051238s step_layer_time=0.679080s npu_calls=2516
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=68 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=68 logits topk_ids=[1614, 104949, 15235, 14468, 198, 4119, 2528, 134680, 33479, 271]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=68 elapsed=50.786091s step_layer_time=0.681567s npu_calls=2553
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=69 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=69 logits topk_ids=[7881, 3465, 11, 22333, 15235, 6188, 323, 198, 13, 15754]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=69 elapsed=51.519653s step_layer_time=0.678920s npu_calls=2590
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=70 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=70 logits topk_ids=[553, 311, 323, 198, 3216, 448, 1694, 369, 304, 271]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=70 elapsed=52.246930s step_layer_time=0.681743s npu_calls=2627
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=71 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=71 logits topk_ids=[54364, 107076, 1674, 279, 50607, 69921, 102661, 264, 13, 198]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=71 elapsed=52.984751s step_layer_time=0.681850s npu_calls=2664
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=72 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=72 logits topk_ids=[14817, 5737, 16055, 13, 198, 1874, 11, 50391, 135825, 100338]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=72 elapsed=53.711189s step_layer_time=0.679953s npu_calls=2701
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=73 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=73 logits topk_ids=[13, 11, 311, 624, 323, 5737, 382, 448, 369, 1874]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=73 elapsed=54.441122s step_layer_time=0.684342s npu_calls=2738
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=74 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=74 logits topk_ids=[358, 3017, 49434, 21927, 1446, 1416, 6771, 576, 847, 35946]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=74 elapsed=55.182182s step_layer_time=0.680117s npu_calls=2775
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=75 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=75 logits topk_ids=[646, 2776, 614, 9213, 1079, 1824, 47344, 36006, 3278, 1492]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=75 elapsed=55.933015s step_layer_time=0.692031s npu_calls=2812
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=76 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=76 logits topk_ids=[1492, 4226, 7789, 3410, 3535, 5889, 12994, 14683, 198, 2736]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=76 elapsed=56.663743s step_layer_time=0.680468s npu_calls=2849
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=77 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=77 logits topk_ids=[448, 498, 4226, 198, 271, 3085, 3847, 7789, 1446, 4197]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=77 elapsed=57.380047s step_layer_time=0.665486s npu_calls=2886
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=78 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=78 logits topk_ids=[264, 4378, 5257, 35764, 9079, 14468, 4755, 1657, 198, 271]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=78 elapsed=58.085126s step_layer_time=0.664235s npu_calls=2923
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=79 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=79 logits topk_ids=[6884, 8045, 2696, 9150, 12767, 198, 2088, 3460, 70732, 32745]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=79 elapsed=58.818495s step_layer_time=0.668336s npu_calls=2960
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=80 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=80 logits topk_ids=[2088, 8045, 42100, 22345, 16437, 198, 9669, 23994, 101121, 271]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=80 elapsed=59.533935s step_layer_time=0.667831s npu_calls=2997
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=81 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=81 logits topk_ids=[315, 198, 271, 59735, 9338, 9079, 13, 4940, 2146, 1055]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=81 elapsed=60.253239s step_layer_time=0.670395s npu_calls=3034
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=82 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=82 logits topk_ids=[9079, 13347, 4755, 198, 271, 7488, 46471, 9338, 32823, 4128]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=82 elapsed=60.994252s step_layer_time=0.680206s npu_calls=3071
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=83 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=83 logits topk_ids=[11, 2670, 1741, 13, 323, 198, 624, 345, 271, 9338]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=83 elapsed=61.722959s step_layer_time=0.676392s npu_calls=3108
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=84 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=84 logits topk_ids=[1741, 2670, 504, 100630, 55121, 15132, 16169, 1075, 323, 5542]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=84 elapsed=62.457853s step_layer_time=0.677394s npu_calls=3145
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=85 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=85 logits topk_ids=[438, 1634, 264, 198, 21927, 311, 60451, 108386, 279, 23811]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=85 elapsed=63.179227s step_layer_time=0.673482s npu_calls=3182
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=86 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=86 logits topk_ids=[35764, 4378, 4226, 102104, 21806, 4128, 14468, 198, 8241, 66271]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=86 elapsed=63.902614s step_layer_time=0.677553s npu_calls=3219
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=87 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=87 logits topk_ids=[4755, 17348, 198, 23382, 4586, 9338, 271, 697, 19556, 4185]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=87 elapsed=64.662031s step_layer_time=0.676422s npu_calls=3256
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=88 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=88 logits topk_ids=[11, 345, 13, 323, 3554, 198, 52388, 304, 38225, 624]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=88 elapsed=65.397836s step_layer_time=0.687394s npu_calls=3293
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=89 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=89 logits topk_ids=[4378, 6825, 11521, 104223, 75878, 66271, 44902, 27597, 105293, 31306]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=89 elapsed=66.114380s step_layer_time=0.667890s npu_calls=3330
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=90 post logits shape=(1, 1, 151936)
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=90 logits topk_ids=[22844, 9709, 61544, 11521, 21984, 11, 1467, 198, 14298, 9293]
+INFO:__main__:REQ 8c67f9ac-4e78-4c5c-a479-bfbbedb8d212: step=90 elapsed=66.820077s step_layer_time=0.665697s npu_calls=3367

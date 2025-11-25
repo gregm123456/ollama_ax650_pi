@@ -19,6 +19,7 @@ import torch
 from transformers import AutoTokenizer
 import time
 import ml_dtypes
+import uuid
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -263,7 +264,7 @@ class AX650Backend:
         logger.info(f"Initialized KV caches: {num_layers} layers, {max_seq_len} seq len, {kv_dim} dims")
 
     def generate(self, prompt: str, max_tokens: int = 128, temperature: float = 0.8, 
-                 top_p: float = 0.9, top_k: int = 40):
+                 top_p: float = 0.9, top_k: int = 40, request_id: str = None):
         """Generate text using AX650 NPU inference.
         
         Args:
@@ -276,7 +277,14 @@ class AX650Backend:
         Returns:
             Generated text string
         """
+        # Ensure there is a request identifier to correlate traces
+        if not request_id:
+            request_id = str(uuid.uuid4())
+
+        logger.info("REQ %s: generate start, prompt_len=%d", request_id, len(prompt))
+
         if self.backend_type == "dummy":
+            logger.info("REQ %s: DUMMY backend echoing prompt", request_id)
             return f"Echo: {prompt}"
         
         if not self.session:
@@ -284,7 +292,7 @@ class AX650Backend:
         
         try:
             if self.backend_type == "axengine":
-                return self._generate_axengine(prompt, max_tokens, temperature, top_p, top_k)
+                return self._generate_axengine(prompt, max_tokens, temperature, top_p, top_k, request_id=request_id)
             elif self.backend_type == "pyaxcl":
                 return self._generate_pyaxcl(prompt, max_tokens)
         except Exception as e:
@@ -292,7 +300,7 @@ class AX650Backend:
             return f"Error during generation: {str(e)}"
     
     def _generate_axengine(self, prompt: str, max_tokens: int, temperature: float,
-                          top_p: float, top_k: int):
+                          top_p: float, top_k: int, request_id: str = None):
         """Generate using axengine InferenceSession.
         
         This implements a basic autoregressive generation loop:
@@ -303,7 +311,7 @@ class AX650Backend:
         5. Stop on EOS or max_tokens
         """
         if getattr(self, "model_type", None) == "qwen3-4b":
-             return self._generate_qwen3_4b(prompt, max_tokens, temperature, top_p, top_k)
+            return self._generate_qwen3_4b(prompt, max_tokens, temperature, top_p, top_k, request_id=request_id)
 
         # For now, return a placeholder showing the SDK is connected
         # Real implementation requires:
@@ -333,12 +341,15 @@ class AX650Backend:
         
         return f"[axengine] Generated response for: {prompt} (SDK integrated, full pipeline TODO)"
 
-    def _generate_qwen3_4b(self, prompt, max_tokens, temperature, top_p, top_k):
+    def _generate_qwen3_4b(self, prompt, max_tokens, temperature, top_p, top_k, request_id: str = None):
         """Generation loop for Qwen3-4B multi-layer model."""
         if not self.tokenizer:
             return "Error: Tokenizer not loaded (transformers required)"
-            
-        logger.info(f"Starting Qwen3-4B generation for prompt: {prompt[:50]}...")
+        
+        if not request_id:
+            request_id = str(uuid.uuid4())
+
+        logger.info("REQ %s: Starting Qwen3-4B generation for prompt: %s...", request_id, prompt[:50])
         
         # Timing accumulators
         t_start_total = time.perf_counter()
@@ -365,7 +376,7 @@ class AX650Backend:
         # 3. Prefill (process prompt tokens)
         # Note: This model seems to process one token at a time (batch=1, seq=1)
         # We must loop through the prompt.
-        logger.info(f"Prefilling {len(input_ids)} tokens...")
+        logger.info("REQ %s: Prefilling %d tokens...", request_id, len(input_ids))
         
         next_token = None
         
@@ -411,6 +422,7 @@ class AX650Backend:
             indices = np.array([[current_pos]], dtype=np.uint32)
             
             # Run through layers
+            t_layer_step0 = time.perf_counter()
             for i, layer_sess in enumerate(self.layers):
                 # Prepare KV cache input: [1, 1023, 1024]
                 # We pass the first 1023 elements of our 1024 buffer
@@ -448,6 +460,8 @@ class AX650Backend:
                 # k_out is [1, 1, 1024]
                 self.k_caches[i][:, current_pos, :] = k_out.reshape(1, 1024)
                 self.v_caches[i][:, current_pos, :] = v_out.reshape(1, 1024)
+            # Per-step layer time
+            t_layer_step = time.perf_counter() - t_layer_step0
             
             # Run Post model
             # Input: input [1, 1, 2560]
@@ -458,6 +472,40 @@ class AX650Backend:
             t_post += time.perf_counter() - t_post0
             n_npu_calls += 1
             logits = post_out[0] # [1, 1, 151936]
+
+            # Log logits shape and top-k candidates for this step for correlation/debugging
+            try:
+                lshape = getattr(logits, 'shape', None)
+                logger.info("REQ %s: step=%d post logits shape=%s", request_id, step, lshape)
+                # Convert to numpy float32 if needed
+                try:
+                    logits_np = np.array(logits)
+                except Exception:
+                    logits_np = np.asarray(logits)
+
+                if logits_np.dtype == ml_dtypes.bfloat16:
+                    logits_np = logits_np.astype(np.float32)
+
+                # Extract top-k ids for quick sanity check
+                try:
+                    flat = logits_np.reshape(-1)
+                    k = min(10, flat.size)
+                    topk_idx = np.argpartition(flat, -k)[-k:]
+                    topk_sorted = topk_idx[np.argsort(-flat[topk_idx])]
+                    logger.info("REQ %s: step=%d logits topk_ids=%s", request_id, step, topk_sorted.tolist())
+                except Exception:
+                    logger.warning("REQ %s: step=%d failed to compute topk", request_id, step)
+
+                # Optionally save logits for offline inspection (first few steps only)
+                if step < 3:
+                    try:
+                        out_path = f"/tmp/{request_id}_logits_step{step}.npy"
+                        np.save(out_path, logits_np.astype(np.float32))
+                        logger.info("REQ %s: saved logits to %s", request_id, out_path)
+                    except Exception as e:
+                        logger.warning("REQ %s: failed to save logits: %s", request_id, e)
+            except Exception as e:
+                logger.warning("REQ %s: error logging logits/topk: %s", request_id, e)
             
             # Sample next token
             t_sample0 = time.perf_counter()
@@ -466,6 +514,13 @@ class AX650Backend:
             
             if not is_prefill:
                 generated_ids.append(next_token)
+
+            # Log per-step timing to help correlate with NPU trace
+            try:
+                step_elapsed = time.perf_counter() - t_start_total
+                logger.info("REQ %s: step=%d elapsed=%.6fs step_layer_time=%.6fs npu_calls=%d", request_id, step, step_elapsed, t_layer_step, n_npu_calls)
+            except Exception:
+                pass
                 
             current_pos += 1
             if current_pos >= 1023:
@@ -568,9 +623,15 @@ def generate_route():
     temperature = float(data.get("temperature", 0.8))
     top_p = float(data.get("top_p", 0.9))
     top_k = int(data.get("top_k", 40))
+    # Allow caller to provide a request_id for trace correlation. If not provided,
+    # the backend will generate one internally.
+    request_id = data.get("request_id")
     text = BACKEND.generate(prompt, max_tokens=max_tokens, temperature=temperature,
-                           top_p=top_p, top_k=top_k)
-    return jsonify({"text": text})
+                           top_p=top_p, top_k=top_k, request_id=request_id)
+    # Echo back the request_id for correlation (if caller provided one, it will
+    # match; if caller omitted it, backend will have generated its own and it
+    # can be found in backend logs).
+    return jsonify({"text": text, "request_id": request_id})
 
 
 @APP.route("/health", methods=["GET"])

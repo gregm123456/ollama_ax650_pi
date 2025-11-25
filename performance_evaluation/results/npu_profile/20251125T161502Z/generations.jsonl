@@ -1,0 +1,1 @@
+{"prompt": "Hello, please write a short, helpful paragraph introducing yourself as a friendly assistant and include one example of a recommended question to ask next.", "status_code": 200, "elapsed_s": 0.0051780880021397024, "text": "Error: Model not loaded. Call /load first.", "request_id": "481b85e1-47bb-489d-9fbf-4bb26f61c0a8"}

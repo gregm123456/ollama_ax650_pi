@@ -65,6 +65,35 @@ This document provides a detailed, actionable implementation plan for diagnosing
 - Document integration steps for manufacturer’s tokenizer.
 - Log token IDs and compare with HuggingFace output.
 
+### 4. Synchronized Trace Analysis (Nov 25, 2025)
+- **Experiment:** Ran a synchronized trace of backend logs and NPU activity for a full generation cycle (~95s).
+- **Results:**
+  - **Avg NPU Utilization:** 27.30%
+  - **Avg Step Duration:** 0.7343s
+  - **Avg Layer Time:** 0.6804s (93% of total time)
+  - **Avg Python Overhead:** 0.0539s (7% of total time)
+- **Conclusion:** The bottleneck is **not** in Python. It is within the `axengine` execution (layer runs). The low NPU utilization suggests memory bandwidth limitations or high overhead per NPU kernel launch (37 calls/token).
+
+### 5. Next Steps
+- **Investigate `axengine`:** Look for ways to reduce NPU calls per token (layer fusion?).
+- **Check Memory:** Verify system memory performance.
+- **Model Optimization:** Re-evaluate model compilation/quantization settings.
+
+### 6. Path Forward (Nov 25, 2025)
+**Critical Finding:** The manufacturer's reference binaries (`main_ax650`, `main_api_ax650`) in `Qwen3-4B/` are **Git LFS pointers**, not executable files. This prevents direct comparison and explains the "command not found" errors.
+
+**Diagnosis Summary:**
+1.  **Tokenizer:** Not the bottleneck.
+2.  **Output Quality:** Saved logits show meaningful tokens. "Low quality" is likely due to generation parameters or the slowness itself.
+3.  **NPU Load:** Low (27%) because the Python loop invokes the NPU 37 times per token (once per layer). The overhead of these transitions dominates the runtime.
+4.  **Slowness:** The Python-orchestrated layer-by-layer execution is ~3x slower than the manufacturer's reported C++ performance (4.5 t/s vs 1.3 t/s).
+
+**Recommended Solution: Hybrid Architecture**
+Instead of optimizing the Python loop (which is structurally limited), we should:
+1.  **Download the real binaries:** Use `git lfs pull` or download `main_api_ax650` manually.
+2.  **Use Manufacturer's API:** Run `main_api_ax650` as a local inference server.
+3.  **Wrap with Python:** Update `backend.py` to act as a proxy, forwarding requests to `main_api_ax650`. This leverages the optimized C++ runtime for speed while keeping the Ollama compatibility layer.
+
 ---
 
 ## 4. Investigate Model Invocation and NPU Utilization
@@ -153,3 +182,41 @@ Begin with workflow mapping and instrumentation, then proceed to controlled prof
   - **Throughput:** Very slow, approx. **56 seconds per prompt**.
   - **Quality:** Outputs are truncated or malformed (e.g., "reeting..."), suggesting issues in the generation loop or post-processing.
 - **Diagnosis:** The NPU is significantly underutilized. The bottleneck likely lies in the Python-side orchestration (per-token overhead, data movement) rather than raw NPU compute capacity.
+
+### Detailed Test Artifacts & Observations
+
+- **Backend log:** `ollama_ax650_integration_mvp/backend.log` (selected highlights)
+  - Note: several earlier log entries (device reset, model load, embedding load) occurred before `24/Nov/2025 22:00:00` and are omitted here per request; below are the relevant entries recorded after `24/Nov/2025 22:00:00`.
+  - Server recorded multiple generation requests after `22:00:00` with the following pattern:
+    - `INFO:__main__:Starting Qwen3-4B generation for prompt: <short preview>`
+    - `INFO:__main__:Prefilling <N> tokens...` (where N varies per prompt)
+    - HTTP responses for these requests returned `200` (examples: Werkzeug logs at `24/Nov/2025 22:36:49`, `22:37:44`, `22:38:42`, `22:39:38`, `22:40:37`, `22:54:44`).
+  - There is at least one earlier unrelated 400/Bad request event (timestamp ~18:16:29) which is outside the requested time window and has been ignored in this summary.
+
+- **NPU trace:** `performance_evaluation/results/npu_profile/20251125T063555Z/npu_trace.csv`
+  - Sampled at ~0.1s intervals while running 5 prompt generations.
+  - First non-zero sample observed ~1.15s after tracer start.
+  - Peak sampled NPU usage: **29%**.
+  - Sustained sampled window (when active) ~27–29%.
+
+- **Generations trace:** `performance_evaluation/results/npu_profile/20251125T063555Z/generations.jsonl`
+  - Per-prompt elapsed times (seconds) for `max_tokens=64` payloads:
+    - Prompt 1: 52.95 s
+    - Prompt 2: 55.90 s
+    - Prompt 3: 57.20 s
+    - Prompt 4: 55.94 s
+    - Prompt 5: 59.35 s
+  - Average generation latency: ~56.7 s per prompt.
+  - Output contents appear malformed/truncated in multiple responses (examples: leading/trailing fragments, instruction-like placeholders). This suggests possible issues in the generation loop, logits-to-token mapping, or detokenization.
+
+- **Tokenizer comparison results:** CSVs in `performance_evaluation/results/`:
+  - `tokenizer_compare_hf_<timestamp>.csv` and `tokenizer_compare_model_<timestamp>.csv` (we ran both for the 5 prompts)
+  - Observations: Token IDs and token counts match for all prompts; encode/decode timings are negligible (sub-millisecond). Conclusion: tokenizer mismatch is unlikely to be the root cause.
+
+**Immediate actionable checks**
+- Confirm the physical device and driver status; the device reset error and `VNPUType.DISABLED` messages deserve investigation.
+- Re-run the NPU profiler with `--duration` covering full generation time (e.g., 75s) to capture the complete utilization profile.
+- Capture backend per-stage timing summary for a single prompt (start the backend and call `/generate`) and inspect the "Generation timing summary" log line to see time split across tokenization, embedding, per-layer runs, post-run and sampling.
+- Investigate malformed outputs by logging intermediate model outputs (logits shapes and top-k token ids before sampling) to verify logits and token-id mapping.
+
+These artifacts and checks will guide whether to focus on batching/calls to the NPU, session/buffer configuration, or refactoring the inner loop into a lower-level runtime.

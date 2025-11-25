@@ -19,6 +19,7 @@ import csv
 import json
 from datetime import datetime
 import requests
+import uuid
 
 
 def get_npu_usage_axcl_smi():
@@ -64,16 +65,21 @@ def run_generations(prompts, backend_url, out_jsonl, timeout=120):
     results = []
     with open(out_jsonl, "w", encoding="utf-8") as fh:
         for p in prompts:
-            payload = {"prompt": p, "max_tokens": 64}
+            # Generate a per-request UUID to correlate with backend logs
+            request_id = str(uuid.uuid4())
+            payload = {"prompt": p, "max_tokens": 64, "request_id": request_id}
             t0 = time.perf_counter()
             try:
                 r = requests.post(backend_url, json=payload, timeout=timeout)
                 elapsed = time.perf_counter() - t0
-                text = r.json().get("text") if r.ok else None
-                record = {"prompt": p, "status_code": r.status_code, "elapsed_s": elapsed, "text": text}
+                resp_json = r.json() if r.ok else {}
+                text = resp_json.get("text")
+                # Backend should echo request_id; if not, fall back to our generated id
+                resp_request_id = resp_json.get("request_id") or request_id
+                record = {"prompt": p, "status_code": r.status_code, "elapsed_s": elapsed, "text": text, "request_id": resp_request_id}
             except Exception as e:
                 elapsed = time.perf_counter() - t0
-                record = {"prompt": p, "status_code": None, "elapsed_s": elapsed, "error": str(e)}
+                record = {"prompt": p, "status_code": None, "elapsed_s": elapsed, "error": str(e), "request_id": request_id}
             fh.write(json.dumps(record, ensure_ascii=False) + "\n")
             fh.flush()
             results.append(record)

@@ -1,0 +1,8 @@
+{
+  "timestamp": "20251125T160010Z",
+  "backend_url": "http://localhost:5002/generate",
+  "num_prompts": 1,
+  "results_file": "performance_evaluation/results/npu_profile/20251125T160010Z/generations.jsonl",
+  "trace_file": "performance_evaluation/results/npu_profile/20251125T160010Z/npu_trace.csv",
+  "prompts_file": "performance_evaluation/prompts_sync.txt"
+}
