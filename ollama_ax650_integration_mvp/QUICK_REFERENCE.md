@@ -101,6 +101,9 @@ Quick integration: a helper script `run_integration.sh` exists at the repository
 
 ## 🐛 Troubleshooting
 
+**"ollama ls" is empty**
+→ **Expected behavior.** The AX650 model is not a standard GGUF file, so `ollama create` fails to register it in the local list. Use the direct API or `OLLAMA_USE_AX650=1` with any model name to force usage.
+
 **"ModuleNotFoundError: No module named 'axengine'"**
 → Install PyAXEngine wheel file
 

@@ -13,9 +13,12 @@ This project integrates [Ollama](https://ollama.com) with AXERA's AX650/LLM8850 
 
 ## 🎉 Status Update
 
-**The integration is complete and working!** The backend successfully generates text using Qwen3-4B on AX650 hardware.
+**✅ FULLY OPERATIONAL!** The system is running with full Ollama API compatibility on port 11434.
+
+**Your existing code that uses `http://localhost:11434` works unchanged - just use model name `qwen3-ax650`!**
 
 📖 **Quick Links:**
+- 🚀 [Ollama API Usage](OLLAMA_API_USAGE.md) - **Use with your existing code!**
 - 📋 [Quick Start Guide](QUICK_START.md) - Get started in 5 minutes
 - 📊 [Build Success Report](BUILD_SUCCESS_REPORT.md) - Detailed build log
 - 📍 [Current Status](CURRENT_STATUS.md) - System status and next steps
@@ -82,7 +85,35 @@ This project integrates [Ollama](https://ollama.com) with AXERA's AX650/LLM8850 
 - Python 3.10+
 - PyAXEngine SDK installed
 
-### Installation
+### One-Command Start
+
+```bash
+cd /home/robot/ollama_ax650_pi
+./start_ollama_ax650.sh
+```
+
+This starts both the backend and Ollama-compatible API on port 11434.
+
+### Use with Your Existing Code
+
+```python
+import requests
+
+# Your existing Ollama code works unchanged!
+response = requests.post(
+    'http://localhost:11434/api/generate',
+    json={
+        'model': 'qwen3-ax650',  # Use this model name
+        'prompt': 'Hello!',
+        'stream': False
+    }
+)
+print(response.json()['response'])
+```
+
+See [OLLAMA_API_USAGE.md](OLLAMA_API_USAGE.md) for complete examples.
+
+### Manual Installation (First Time Only)
 
 ```bash
 # Clone repository
