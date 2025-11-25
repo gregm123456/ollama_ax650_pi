@@ -20,6 +20,8 @@ import logging
 import subprocess
 import requests
 import signal
+import re
+import shutil
 from flask import Flask, request, jsonify
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -75,8 +77,37 @@ def start_runtime(model_path=None):
             "Qwen3-4B",
             "qwen3-4b-ax650"
         )
+
+        def detect_runtime_device():
+            """Detect an appropriate runtime device id.
+
+            `axcl-smi` reports human-friendly device ids (1-based). The C++ runtime
+            expects 0-based device ids. This helper runs `axcl-smi` (if available),
+            parses the first `Device ID` line and returns (reported_id - 1).
+            Falls back to 0 on any error.
+            """
+            axcl_bin = shutil.which("axcl-smi")
+            if not axcl_bin:
+                logger.warning("axcl-smi not found; defaulting to device 0")
+                return "0"
+
+            try:
+                out = subprocess.check_output([axcl_bin, "info", "--cmm"], stderr=subprocess.STDOUT, text=True, timeout=5)
+                # look for lines like: "Device ID           : 1 (0x1)"
+                m = re.search(r"Device ID\s*:\s*(\d+)", out)
+                if m:
+                    reported = int(m.group(1))
+                    runtime_id = max(0, reported - 1)
+                    logger.info(f"Detected AXCL reported device {reported}; using runtime device {runtime_id}")
+                    return str(runtime_id)
+            except Exception as e:
+                logger.warning(f"Failed to run axcl-smi to detect device: {e}; defaulting to 0")
+
+            return "0"
         
         # Construct command with all required arguments
+        device_id = detect_runtime_device()
+
         cmd = [
             real_binary,
             "--system_prompt", "You are Qwen, created by Alibaba Cloud. You are a helpful assistant.",
@@ -88,7 +119,7 @@ def start_runtime(model_path=None):
             "--tokens_embed_num", "151936",
             "--tokens_embed_size", "2560",
             "--use_mmap_load_embed", "1",
-            "--devices", "0"
+            "--devices", device_id
         ]
     else:
         logger.info(f"Launching MOCK runtime: {mock_script}")

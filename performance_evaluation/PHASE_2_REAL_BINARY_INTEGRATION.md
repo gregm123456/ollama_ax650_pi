@@ -81,6 +81,58 @@ cd /home/robot/ollama_ax650_pi
 - Response contains actual generated text (not dummy/mock text)
 - Check logs for "LLM init start" and "init post axmodel ok"
 
+### Contiguous Memory (CMA) Issue — Diagnosis & Fix
+
+During a manual runtime start we observed the runtime initialize but then the AXCL driver failed to allocate contiguous memory and the device died shortly after initialization. Symptoms seen in `dmesg` and logs:
+
+- Kernel messages: `ax_sglist_alloc_mem ... failed`
+- Repeated `device X: dead!` heartbeat messages
+- `axcl-smi` reported `CmaTotal: 65536 kB` and `CmaFree: 0 kB` (CMA exhausted)
+- Runtime log showed `init post axmodel ok` followed by `AXCLWorker exit with devid N`
+
+Root cause
+- The AXCL runtime requires a large contiguous memory reservation (CMA) to allocate device buffers (the model used ~1.8 GiB of CMM). The Raspberry Pi's kernel CMA default was only 64 MiB in this image, which is insufficient.
+
+Immediate Fix Applied
+- Backed up the current kernel cmdline and appended a CMA kernel parameter to increase the reserved contiguous memory to 2 GiB:
+
+```bash
+sudo cp /boot/cmdline.txt /boot/cmdline.txt.bak
+sudo sed -i '1s/$/ cma=2048M/' /boot/cmdline.txt
+```
+
+- This change requires a reboot to take effect. After reboot the kernel will reserve ~2 GiB of CMA which the AXCL driver can use for CMM allocations.
+
+Verification Steps After Reboot
+1. Confirm CMA increased and free:
+
+```bash
+egrep -i 'CmaTotal|CmaFree' /proc/meminfo
+```
+
+Expected: `CmaTotal` ≈ `2097152 kB` and `CmaFree` non-zero.
+
+2. Confirm AXCL device and CMM usage:
+
+```bash
+axcl-smi info --cmm -d 0
+```
+
+3. Start tokenizer, then manually start the runtime (or start the proxy which will auto-start the runtime). Watch logs for model load progress (`LLM init start`, progress bars) and for `init post axmodel ok`.
+
+4. Run integration test:
+
+```bash
+./test_ollama_compatibility.py
+```
+
+Notes & Recommendations
+- The backend now auto-detects the best `--devices` id by parsing `axcl-smi` output and translating the human-facing (1-based) reported id to the runtime's 0-based id. This avoids repeated device-id mismatch errors.
+- Consider keeping a small pre-launch CMA check in `backend.py` to warn if `CmaFree` is below a threshold (e.g., 2 GiB) so the service fails early and clearly instead of triggering device crashes.
+- If you prefer a different CMA size (e.g., 1 GiB), adjust the `cma=` value accordingly — but ensure it's big enough for the model's CMM requirement (observed ~1.8 GiB for Qwen3-4B with this configuration).
+
+Proceed to reboot when ready. After the system comes back up, follow the verification steps above and then re-run the integration test.
+
 Run the compatibility test again. This time, the proxy will launch the real C++ server.
 
 **Action:**
