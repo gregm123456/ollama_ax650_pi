@@ -1,5 +1,25 @@
-nohup: ignoring input
-Traceback (most recent call last):
-  File "/home/robot/ollama_ax650_pi/ollama_ax650_integration_mvp/backend.py", line 18, in <module>
-    import torch
-ModuleNotFoundError: No module named 'torch'
+2025-11-25 11:49:39,842 - AX650Proxy - INFO - ============================================================
+2025-11-25 11:49:39,842 - AX650Proxy - INFO - AX650 Hybrid Proxy Starting
+2025-11-25 11:49:39,842 - AX650Proxy - INFO - ============================================================
+2025-11-25 11:49:39,842 - AX650Proxy - INFO - Launching MOCK runtime: /home/robot/ollama_ax650_pi/ollama_ax650_integration_mvp/mock_main_api.py
+2025-11-25 11:49:39,843 - AX650Proxy - INFO - Waiting for runtime to initialize...
+2025-11-25 11:49:44,870 - AX650Proxy - INFO - Runtime is up and responding!
+ * Serving Flask app 'backend'
+ * Debug mode: off
+2025-11-25 11:49:44,873 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5002
+ * Running on http://192.184.192.144:5002
+2025-11-25 11:49:44,873 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-11-25 11:49:54,992 - werkzeug - INFO - 192.184.192.144 - - [25/Nov/2025 11:49:54] "[33mGET / HTTP/1.1[0m" 404 -
+2025-11-25 11:49:55,069 - werkzeug - INFO - 192.184.192.144 - - [25/Nov/2025 11:49:55] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-11-25 11:49:56,742 - werkzeug - INFO - 192.184.192.144 - - [25/Nov/2025 11:49:56] "[33mGET / HTTP/1.1[0m" 404 -
+2025-11-25 11:49:57,522 - werkzeug - INFO - 192.184.192.144 - - [25/Nov/2025 11:49:57] "[33mGET / HTTP/1.1[0m" 404 -
+2025-11-25 11:49:58,348 - werkzeug - INFO - 192.184.192.144 - - [25/Nov/2025 11:49:58] "[33mGET / HTTP/1.1[0m" 404 -
+2025-11-25 11:50:10,236 - werkzeug - INFO - 127.0.0.1 - - [25/Nov/2025 11:50:10] "GET /health HTTP/1.1" 200 -
+2025-11-25 11:50:10,257 - werkzeug - INFO - 127.0.0.1 - - [25/Nov/2025 11:50:10] "POST /generate HTTP/1.1" 200 -
+2025-11-25 11:52:36,565 - werkzeug - INFO - 127.0.0.1 - - [25/Nov/2025 11:52:36] "POST /generate HTTP/1.1" 200 -
+2025-11-25 11:52:36,592 - werkzeug - INFO - 127.0.0.1 - - [25/Nov/2025 11:52:36] "POST /generate HTTP/1.1" 200 -
+2025-11-25 11:52:36,620 - werkzeug - INFO - 127.0.0.1 - - [25/Nov/2025 11:52:36] "POST /generate HTTP/1.1" 200 -
+2025-11-25 11:52:36,646 - werkzeug - INFO - 127.0.0.1 - - [25/Nov/2025 11:52:36] "POST /generate HTTP/1.1" 200 -
+2025-11-25 11:52:36,674 - werkzeug - INFO - 127.0.0.1 - - [25/Nov/2025 11:52:36] "POST /generate HTTP/1.1" 200 -
