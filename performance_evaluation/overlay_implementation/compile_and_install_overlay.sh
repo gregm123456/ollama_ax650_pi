@@ -5,8 +5,11 @@ set -euo pipefail
 # Compile cma-128mb.dts to a .dtbo and install it to /boot/firmware/overlays/
 # Then enable via /boot/firmware/config.txt (creates backups).
 
-DTS_SRC="$(dirname "$0")/cma-128mb.dts"
-DTBO_NAME="cma-128mb.dtbo"
+# Use the conservative, safe 64MiB DTO by default
+# Default to the most-conservative 16MiB DTO for testing across devices
+DTS_SRC="$(dirname "$0")/cma-16mb.dts"
+DTBO_NAME="cma-16mb.dtbo"
+OVERLAY_BASE="${DTBO_NAME%.dtbo}"
 OVERLAY_DIR="/boot/firmware/overlays"
 CONFIG_TXT="/boot/firmware/config.txt"
 
@@ -35,13 +38,13 @@ cp -a "$DTBO_NAME" "$OVERLAY_DIR/"
 cp -a "$CONFIG_TXT" "$CONFIG_TXT".bak
 
 # Add dtoverlay line if not present
-if ! grep -qE '^\s*dtoverlay=cma-128mb\b' "$CONFIG_TXT"; then
-  echo "dtoverlay=cma-128mb" >> "$CONFIG_TXT"
-  echo "Added 'dtoverlay=cma-128mb' to $CONFIG_TXT (backup: $CONFIG_TXT.bak)"
+if ! grep -qE "^\s*dtoverlay=${OVERLAY_BASE}\b" "$CONFIG_TXT"; then
+  echo "dtoverlay=${OVERLAY_BASE}" >> "$CONFIG_TXT"
+  echo "Added 'dtoverlay=${OVERLAY_BASE}' to $CONFIG_TXT (backup: $CONFIG_TXT.bak)"
 else
-  echo "dtoverlay=cma-128mb already present in $CONFIG_TXT"
+  echo "dtoverlay=${OVERLAY_BASE} already present in $CONFIG_TXT"
 fi
 
-echo "Installed $DTBO_NAME to $OVERLAY_DIR and enabled in $CONFIG_TXT"
+echo "Installed $DTBO_NAME to $OVERLAY_DIR and enabled via dtoverlay=${OVERLAY_BASE} in $CONFIG_TXT"
 
 echo "Done. Review $CONFIG_TXT.bak and $OVERLAY_DIR.bak if you need to revert." 

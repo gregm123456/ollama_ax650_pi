@@ -1,0 +1,23 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "brcm,bcm2712";
+
+    fragment@0 {
+        target-path = "/reserved-memory";
+        __overlay__ {
+            #address-cells = <2>;
+            #size-cells = <2>;
+            ranges;
+
+            cma_16mb: cma_16mb {
+                compatible = "shared-dma-pool";
+                reusable;
+                // Reserve 16 MiB = 0x01000000 bytes at a conservative high-but-within-4GB base
+                // The base 0x3a000000 was observed working in previous logs.
+                reg = <0x0 0x3a000000 0x0 0x01000000>;
+            };
+        };
+    };
+};

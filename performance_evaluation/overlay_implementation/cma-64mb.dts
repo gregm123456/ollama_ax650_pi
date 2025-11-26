@@ -1,0 +1,22 @@
+
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "brcm,bcm2712";
+
+    fragment@0 {
+        // Use target-path so dtc can validate the overlay without needing
+        // the parent DT's reserved-memory phandle to be present.
+        target-path = "/reserved-memory";
+        __overlay__ {
+            cma_64mb: cma_64mb {
+                compatible = "shared-dma-pool";
+                reusable;
+                // Reserve 64 MiB = 0x04000000 bytes at a high-safe address
+                // Use the same base seen working in dmesg logs (0x3a000000).
+                reg = <0x0 0x3a000000 0x0 0x04000000>;
+            };
+        };
+    };
+};
