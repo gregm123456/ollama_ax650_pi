@@ -1,0 +1,19 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "raspberrypi,5-model-b", "brcm,bcm2712";
+
+    fragment@0 {
+        target-path = "/reserved-memory";
+        __overlay__ {
+            linux,cma {
+                compatible = "shared-dma-pool";
+                reusable;
+                size = <0x0 0x80000000>; /* 2GB */
+                alignment = <0x0 0x2000>;
+                linux,cma-default;
+            };
+        };
+    };
+};
