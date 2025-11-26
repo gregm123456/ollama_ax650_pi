@@ -167,3 +167,19 @@ grep CmaTotal /proc/meminfo
 *   **Success:** You see `CmaTotal: 262144 kB` (approx 256MB). This proves the mechanism works.
 *   **Failure (Boot loop):** The issue is the file editing process/syntax.
 *   **Failure (Still 64MB):** The kernel is ignoring the parameter (firmware override).
+
+Note: Using the `@` modifier with `cma=`
+-------------------------------------
+
+- Syntax: `cma=<size>[@<base>]` — e.g. `cma=256M`, `cma=256M@512M`, or `cma=256M@0x40000000`.
+- The `@<base>` part requests the CMA reservation to start at a particular physical address (or offset) instead of allowing the kernel to pick the region.
+- Use cases: forcing placement may be necessary for some hardware requiring DMA at a specific physical region or to avoid overlap with reserved regions. In most cases, the simple `cma=<size>` form (no `@`) is preferable.
+- Cautions:
+  - The `base` must be within system RAM and meet kernel alignment constraints; otherwise the kernel may adjust the placement or ignore the request.
+  - A wrong or overlapping base can cause the CMA reservation to fail or cause early boot failures. Use extreme caution, especially on devices where firmware reserves memory regions.
+  - The kernel or firmware can ignore this parameter, so verify acceptance with `grep CmaTotal /proc/meminfo` and `dmesg | grep -i cma` after a reboot.
+- Alternatives: If you need deterministic memory placement for a device, prefer Device Tree/firmware reservations or overlay-based reservation mechanisms when available instead of forcing an absolute physical address from the cmdline.
+- Testing and safety:
+  - Test with a conservative, small size first (e.g. `cma=256M@...`) while local to the device so you can watch the console and recover quickly if boot fails.
+  - Always keep a backup of `/boot/firmware/cmdline.txt` and `/boot/firmware/config.txt` before changing `cma=` parameters.
+  - Use `wc -l /boot/firmware/cmdline.txt` and `tail -c 1 /boot/firmware/cmdline.txt | od -c` to ensure the cmdline file is still single-line and contains a trailing newline.
