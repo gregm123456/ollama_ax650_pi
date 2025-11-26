@@ -1,0 +1,17 @@
+/dts-v1/;
+
+/ {
+    compatible = "brcm,bcm2712";
+
+    fragment@0 {
+        target = <&reserved_memory>;
+        __overlay__ {
+            cma_128mb: cma_128mb {
+                compatible = "shared-dma-pool";
+                reusable;
+                // Reserve 128 MiB = 0x08000000 bytes
+                reg = <0x0 0x0 0x0 0x08000000>;
+            };
+        };
+    };
+};
