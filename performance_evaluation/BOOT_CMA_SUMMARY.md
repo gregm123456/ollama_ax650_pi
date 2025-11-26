@@ -126,3 +126,44 @@ Notes and safety tips
 - Prefer editing the boot partition while the card is offline (mounted on a rescue machine) to avoid accidental newline insertion by editors.
 - If you need a smaller CMA to test, remove the overlay and instead test `cma=1024M` in `/boot/firmware/cmdline.txt` (carefully, ensuring the file remains one line) and reboot.
 - Keep the generated `performance_evaluation/cma-2g.dts` and `*.dtbo` files in the repo for auditing; they are safe to keep under `/boot/firmware/overlays/` if you want to re-enable the overlay later.
+
+**Conservative CMA Test (cma=256M)**
+To verify if the CMA parameter mechanism works at all without risking boot failure, test with a small, safe value (256MB). This is larger than the default 64MB but small enough to avoid allocation issues.
+
+### Step 1: Ensure Overlay is Disabled
+First, make sure we aren't still trying to load the failed overlay.
+
+```bash
+# Remove the overlay line if it exists
+sudo sed -i '/^dtoverlay=cma-2g/d' /boot/firmware/config.txt
+```
+
+### Step 2: Apply Conservative CMA (256M)
+We will use a strict `sed` command to append the parameter without adding newlines.
+
+```bash
+# 1. Clean out any existing cma= entries to avoid duplicates
+sudo sed -i 's/ cma=[^[:space:]]*//g' /boot/firmware/cmdline.txt
+
+# 2. Append cma=256M safely
+sudo sed -i 's/$/ cma=256M/' /boot/firmware/cmdline.txt
+
+# 3. Verify it is still exactly one line (output should be "1")
+wc -l /boot/firmware/cmdline.txt
+```
+
+### Step 3: Reboot and Verify
+Reboot the system.
+
+```bash
+sudo reboot
+```
+
+**After reboot:**
+Check if the system accepted the value:
+```bash
+grep CmaTotal /proc/meminfo
+```
+*   **Success:** You see `CmaTotal: 262144 kB` (approx 256MB). This proves the mechanism works.
+*   **Failure (Boot loop):** The issue is the file editing process/syntax.
+*   **Failure (Still 64MB):** The kernel is ignoring the parameter (firmware override).
