@@ -54,3 +54,74 @@ Notes
 
 Short-term recommendation
 - Restore a clean `cmdline.txt` (no `cma=`) so the device boots reliably. Then, while local and able to watch the console, add `cma=2048M` to `/boot/firmware/cmdline.txt` and reboot to test the NPU runtime.
+ 
+**Device Tree overlay installed**
+- Where: `performance_evaluation/cma-2g.dts` (source) and `performance_evaluation/cma-2g.dtbo` (compiled) were created. The DTBO was copied to `/boot/firmware/overlays/cma-2g.dtbo` and `dtoverlay=cma-2g` was added to `/boot/firmware/config.txt`.
+
+**Undo / Safe-boot instructions**
+If anything goes wrong after enabling the overlay (or you need to recover the system from external media), follow these steps to safely undo the overlay and restore the previous boot state.
+
+1) Boot from rescue media (USB / SD) and mount the target device's boot partition
+
+```bash
+# Example device nodes; adjust if your boot partition is different
+sudo mkdir -p /mnt/target_boot
+sudo mount /dev/mmcblk0p1 /mnt/target_boot    # common on Raspberry Pi
+# or, if using the mounted rescue path used earlier:
+sudo mount /media/gregm/bootfs /mnt/target_boot
+```
+
+2) Back up current boot files (do this first)
+
+```bash
+sudo cp -a /mnt/target_boot/cmdline.txt /mnt/target_boot/cmdline.txt.bak
+sudo cp -a /mnt/target_boot/config.txt /mnt/target_boot/config.txt.bak
+sudo cp -a /mnt/target_boot/overlays/cma-2g.dtbo /mnt/target_boot/overlays/cma-2g.dtbo.bak || true
+```
+
+3) Remove overlay enable line from `config.txt` (idempotent)
+
+```bash
+sudo sed -i '/^dtoverlay=cma-2g\b/d' /mnt/target_boot/config.txt
+# verify single-line integrity of cmdline.txt remains
+wc -l /mnt/target_boot/cmdline.txt
+```
+
+4) Remove the DTBO from overlays (optional; safer to keep backup)
+
+```bash
+sudo rm -f /mnt/target_boot/overlays/cma-2g.dtbo
+# or move it aside so you can restore quickly
+sudo mv /mnt/target_boot/overlays/cma-2g.dtbo /mnt/target_boot/overlays/cma-2g.dtbo.disabled
+```
+
+5) Ensure `cmdline.txt` is single-line and does not contain any `cma=` tokens
+
+```bash
+# remove any cma= tokens if present
+sudo sed -i 's/ cma=[^[:space:]]\+//g' /mnt/target_boot/cmdline.txt
+tr -d '\n' < /mnt/target_boot/cmdline.txt | wc -c   # should print nonzero length on one line
+```
+
+6) Unmount and reboot from the device's normal boot medium
+
+```bash
+sudo umount /mnt/target_boot
+# reboot the device normally (from SD/eMMC)
+```
+
+7) If the system still fails to boot, restore the exact backups created in step (2)
+
+```bash
+# from your rescue environment, remount the boot partition and then
+sudo cp -a /mnt/target_boot/cmdline.txt.bak /mnt/target_boot/cmdline.txt
+sudo cp -a /mnt/target_boot/config.txt.bak /mnt/target_boot/config.txt
+sudo mv /mnt/target_boot/overlays/cma-2g.dtbo.bak /mnt/target_boot/overlays/cma-2g.dtbo || true
+sudo umount /mnt/target_boot
+```
+
+Notes and safety tips
+- Always make a backup copy of `cmdline.txt` and `config.txt` before editing. `cmdline.txt` must remain a single line.
+- Prefer editing the boot partition while the card is offline (mounted on a rescue machine) to avoid accidental newline insertion by editors.
+- If you need a smaller CMA to test, remove the overlay and instead test `cma=1024M` in `/boot/firmware/cmdline.txt` (carefully, ensuring the file remains one line) and reboot.
+- Keep the generated `performance_evaluation/cma-2g.dts` and `*.dtbo` files in the repo for auditing; they are safe to keep under `/boot/firmware/overlays/` if you want to re-enable the overlay later.
