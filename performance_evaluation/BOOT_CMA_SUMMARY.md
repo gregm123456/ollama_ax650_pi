@@ -10,6 +10,7 @@ What went wrong
 - The `cma=2048M` change was appended to the fake `/media/gregm/rootfs/boot/cmdline.txt` (the "DO NOT EDIT" file) so the bootloader never saw it.
 - A later edit to set `cma=1024M` apparently made the system unbootable. Common causes:
   - `cmdline.txt` must be a single line. If a newline was inserted when editing, the kernel can fail to parse the command line and the system will fail early (symptoms like `hctosys: unable to read the hardware clock` are commonly seen when boot stalls early).
+  - Note about "zero lines": a file can contain the full cmdline text yet lack a trailing newline character. Tools like `wc -l` count newline characters and will report 0 lines for such files. A missing trailing newline can produce the exact behaviour you observed (the edit appears in the file when viewed, but the bootloader/kernel may not parse it correctly). Always ensure the cmdline file ends with a single newline.
   - A too-large CMA or incorrect value can also cause memory/resource issues during boot; but in your case the primary problem was likely editing the wrong file or introducing a newline.
 
 Immediate recovery steps (succinct)
