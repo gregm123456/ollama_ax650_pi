@@ -6,7 +6,7 @@ If the DTO or cmdline edits made by the helper scripts cause a boot failure, use
 
 Notes
 - Paths in this repo's scripts target `/boot/firmware/` as the boot partition. When mounted under `/mnt/target`, these paths become `/mnt/target/boot/firmware/`.
-- The staged overlay file name is `cma-128mb.dtbo` and the DTS name is `cma-128mb.dts` (source kept in the repo). Scripts also create backups with `.bak` suffixes; this file shows how to restore them.
+- The staged overlay file names are `cma-128mb.dtbo`, `cma-16mb.dtbo`, or `cma-test-16m.dtbo` (sources kept in the repo). Scripts also create backups with `.bak` suffixes; this file shows how to restore them.
 - These commands must be run on the recovery system (not the broken system), with the target filesystem mounted read-write.
 
 Preparation: identify the target device and mount point
@@ -41,9 +41,11 @@ if [ -f /mnt/target/boot/firmware/config.txt.bak ]; then
   sudo cp -a /mnt/target/boot/firmware/config.txt.bak /mnt/target/boot/firmware/config.txt
   echo "Restored config.txt from config.txt.bak"
 else
-  # Otherwise remove any dtoverlay=cma-128mb lines added by the script
+  # Otherwise remove any dtoverlay=cma-* lines added by the script or manual edits
   sudo sed -i '/^\s*dtoverlay=cma-128mb\b/d' /mnt/target/boot/firmware/config.txt
-  echo "Removed dtoverlay=cma-128mb from config.txt (if present)"
+  sudo sed -i '/^\s*dtoverlay=cma-16mb\b/d' /mnt/target/boot/firmware/config.txt
+  sudo sed -i '/^\s*dtoverlay=cma-test-16m\b/d' /mnt/target/boot/firmware/config.txt
+  echo "Removed dtoverlay=cma-* lines from config.txt (if present)"
 fi
 ```
 
@@ -51,10 +53,12 @@ fi
 
 Step B — Remove the compiled overlay (dtbo)
 
-1. Remove `cma-128mb.dtbo` from overlays:
+1. Remove any `cma-*.dtbo` files from overlays:
 
 ```bash
 sudo rm -f /mnt/target/boot/firmware/overlays/cma-128mb.dtbo
+sudo rm -f /mnt/target/boot/firmware/overlays/cma-16mb.dtbo
+sudo rm -f /mnt/target/boot/firmware/overlays/cma-test-16m.dtbo
 ```
 
 2. If you created an overlays backup directory (script attempted to copy `/boot/firmware/overlays` to `/boot/firmware/overlays.bak`), you can restore it completely:
@@ -137,11 +141,13 @@ If you have a complex `config.txt` and prefer not to fully restore the backup, y
 
 ```bash
 sudo sed -i.bak '/^\s*dtoverlay=cma-128mb\b/d' /mnt/target/boot/firmware/config.txt
+sudo sed -i.bak '/^\s*dtoverlay=cma-16mb\b/d' /mnt/target/boot/firmware/config.txt
+sudo sed -i.bak '/^\s*dtoverlay=cma-test-16m\b/d' /mnt/target/boot/firmware/config.txt
 # This creates config.txt.bak with the pre-edit version
 ```
 
 Final notes
 
-- These steps assume the scripts in `performance_evaluation/overlay_implementation/` were used. If you made different edits, adapt accordingly.
+- These steps assume the scripts in `performance_evaluation/overlay_implementation/` were used or manual edits similar to them. If you made different edits, adapt accordingly.
 - If you want, copy this `UNDO.md` off the SD card and keep it with your recovery media for quick access.
 
