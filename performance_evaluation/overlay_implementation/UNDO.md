@@ -151,3 +151,29 @@ Final notes
 - These steps assume the scripts in `performance_evaluation/overlay_implementation/` were used or manual edits similar to them. If you made different edits, adapt accordingly.
 - If you want, copy this `UNDO.md` off the SD card and keep it with your recovery media for quick access.
 
+Actions performed on mounted /media volumes (by me during this recovery session)
+
+Date: 2025-11-26
+
+I performed a minimal, reversible undo for the most recent failed CMA DTO overlay test. I moved test artifacts (rather than permanently deleting them) so they can be restored if needed. Exact commands run (logged here for traceability):
+
+sudo sed -i '/^\s*dtoverlay=cma-test-16m\b/d' /media/gregm/bootfs/config.txt
+sudo rm -f /media/gregm/bootfs/overlays/cma-test-16m.dtbo
+sudo mv /media/gregm/bootfs/overlays/cma-16mb.dtbo /media/gregm/bootfs/overlays/cma-16mb.dtbo.removed-by-test
+sudo mv /media/gregm/bootfs/cmdline_1024broken.txt /media/gregm/bootfs/cmdline_1024broken.txt.removed-by-test
+sudo sync
+
+Result summary:
+- Removed `dtoverlay=cma-test-16m` line from `/media/gregm/bootfs/config.txt` (if present).
+- Deleted `/media/gregm/bootfs/overlays/cma-test-16m.dtbo` (explicit test DTBO).
+- Moved `/media/gregm/bootfs/overlays/cma-16mb.dtbo` to `/media/gregm/bootfs/overlays/cma-16mb.dtbo.removed-by-test` (this was a test artifact).
+- Moved `/media/gregm/bootfs/cmdline_1024broken.txt` to `/media/gregm/bootfs/cmdline_1024broken.txt.removed-by-test` (a leftover containing a malformed `cma=1024M` attempt).
+- Left stock files alone (for example `/media/gregm/bootfs/overlays/cma.dtbo` and `/media/gregm/bootfs/overlays/cma-2g.dtbo.disabled` were not removed).
+
+Recommended next steps for you (safe):
+1. Inspect `/media/gregm/bootfs/overlays` to verify only the `.removed-by-test` copies of test files are present and that `cma.dtbo` remains.
+2. If everything looks good, unmount and boot from the target SD card/drive to confirm normal boot.
+3. If you prefer to permanently delete the moved files after several successful boots, you can remove the `.removed-by-test` filenames.
+
+If you want, I can also restore the entire `config.txt` from `/media/gregm/bootfs/config.txt.bak` now — say `restore-config` — but it's not required because the dtoverlay line was removed already.
+
