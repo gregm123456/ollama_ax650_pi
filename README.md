@@ -151,7 +151,7 @@ There's also a helper script at the repo root `run_integration.sh` that automate
 echo "FROM /path/to/your/model" > Modelfile
 ./ollama-ax650 create qwen3-ax650 -f Modelfile
 ./ollama-ax650 run qwen3-ax650 "Hello, world!"
-\`\`\`
+```
 
 ## 📚 Documentation
 
@@ -165,7 +165,7 @@ echo "FROM /path/to/your/model" > Modelfile
 
 ## 🧪 Testing
 
-\`\`\`bash
+```bash
 # Test backend
 cd ollama_ax650_integration_mvp
 ./test_hardware_integration.sh
@@ -175,11 +175,11 @@ curl http://localhost:11434/api/generate -d '{
   "model": "qwen3-ax650",
   "prompt": "What is an NPU?"
 }'
-\`\`\`
+```
 
 ## 🗂️ Project Structure
 
-\`\`\`
+```
 ollama_ax650_pi/
 ├── ollama/                        # Ollama submodule with AX650 integration
 │   └── llm/llm_ax650.go          # AX650 backend implementation
@@ -193,7 +193,7 @@ ollama_ax650_pi/
 │
 ├── BUILD_GUIDE.md                 # Build instructions
 └── PROJECT_COMPLETE.md            # Complete documentation
-\`\`\`
+```
 
 ## 🎯 Use Cases
 
