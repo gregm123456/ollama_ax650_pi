@@ -2,7 +2,8 @@ from huggingface_hub import snapshot_download
 import os
 
 repo_id = "AXERA-TECH/Qwen3-4B"
-local_dir = "/home/robot/ollama_ax650_pi/ax650_raspberry_pi_services/reference_projects_and_documentation/Qwen3-4B"
+local_dir = os.path.join(os.path.dirname(__file__), "models", "ax650_qwen3-4b")
+os.makedirs(local_dir, exist_ok=True)
 patterns = ["qwen3-4b-ax650/*"]
 
 print(f"Snapshot downloading {repo_id} -> {local_dir} (patterns={patterns})")

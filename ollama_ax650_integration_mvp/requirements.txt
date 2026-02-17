@@ -1,5 +1,6 @@
+# Core dependencies
 flask>=2.0
 requests>=2.28.0
 numpy>=1.22.0
-# Optional manufacturer bindings (install on target Raspberry Pi)
-pyaxcl
+# Manufacturer bindings for AX650 NPU
+pyaxcl @ https://github.com/AXERA-TECH/pyaxcl/releases/download/v3.10.2-1/pyaxcl-3.10.2-py3-none-any.whl

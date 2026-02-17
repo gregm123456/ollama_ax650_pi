@@ -60,7 +60,7 @@ Or test directly with Python:
 1. **Clone and set up environment:**
 
 ```bash
-cd /home/robot/ollama_ax650_pi/ollama_ax650_integration_mvp
+cd ollama_ax650_integration_mvp
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -69,9 +69,11 @@ pip install -r requirements.txt
 2. **Install manufacturer bindings:**
 
 ```bash
-# Install the manufacturer-provided package (check their docs for exact name)
-pip install pyaxcl  # or pyaxengine, depending on your SDK version
+# Install the manufacturer-provided package
+pip install "https://github.com/AXERA-TECH/pyaxcl/releases/download/v3.10.2-1/pyaxcl-3.10.2-py3-none-any.whl"
 ```
+
+> **Note:** `pyaxcl` requires the native AXCL driver to be installed on the system (e.g., `libaxcl_logger.so`). If you are not on an AX650-equipped device, the backend will fallback to dummy mode.
 
 3. **Configure environment:**
 
