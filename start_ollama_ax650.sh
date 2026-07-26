@@ -10,7 +10,7 @@ echo ""
 # Configuration
 BACKEND_DIR="/home/robot/ollama_ax650_pi/ollama_ax650_integration_mvp"
 PROXY_SCRIPT="/home/robot/ollama_ax650_pi/ollama_proxy.sh"
-MODEL_PATH="/home/robot/ollama_ax650_pi/ax650_raspberry_pi_services/reference_projects_and_documentation/Qwen3-4B/qwen3-4b-ax650"
+MODEL_PATH="/home/robot/ollama_ax650_pi/models/Qwen3-4B"
 
 # Check if backend is already running
 if pgrep -f "python.*backend.py" > /dev/null; then

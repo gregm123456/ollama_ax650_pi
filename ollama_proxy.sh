@@ -131,7 +131,7 @@ class OllamaProxyHandler(BaseHTTPRequestHandler):
                 error_response = {'error': str(e)}
                 self.wfile.write(json.dumps(error_response).encode())
                 
-        elif self.path == '/api/chat':
+        elif self.path == '/api/chat' or self.path == '/v1/chat/completions':
             # Convert chat format to simple generate
             messages = data.get('messages', [])
             # Combine messages into a single prompt
@@ -157,37 +157,73 @@ class OllamaProxyHandler(BaseHTTPRequestHandler):
                 response.raise_for_status()
                 result = response.json()
                 
-                # Convert to Ollama chat format
+                # Convert response based on requested API flavor.
                 if stream:
                     self.send_response(200)
                     self.send_header('Content-type', 'application/x-ndjson')
                     self.end_headers()
-                    
-                    chunk = {
-                        'model': data.get('model', 'qwen3-ax650'),
-                        'created_at': '2025-11-24T00:00:00Z',
-                        'message': {
-                            'role': 'assistant',
-                            'content': result.get('text', '')
-                        },
-                        'done': True
-                    }
-                    self.wfile.write((json.dumps(chunk) + '\n').encode())
+
+                    if self.path == '/v1/chat/completions':
+                        chunk = {
+                            'id': 'chatcmpl-ax650-1',
+                            'object': 'chat.completion.chunk',
+                            'created': 1763942400,
+                            'model': data.get('model', 'qwen3-ax650'),
+                            'choices': [{
+                                'index': 0,
+                                'delta': {'role': 'assistant', 'content': result.get('text', '')},
+                                'finish_reason': 'stop'
+                            }]
+                        }
+                        self.wfile.write((json.dumps(chunk) + '\n').encode())
+                    else:
+                        chunk = {
+                            'model': data.get('model', 'qwen3-ax650'),
+                            'created_at': '2025-11-24T00:00:00Z',
+                            'message': {
+                                'role': 'assistant',
+                                'content': result.get('text', '')
+                            },
+                            'done': True
+                        }
+                        self.wfile.write((json.dumps(chunk) + '\n').encode())
                 else:
                     self.send_response(200)
                     self.send_header('Content-type', 'application/json')
                     self.end_headers()
-                    
-                    ollama_response = {
-                        'model': data.get('model', 'qwen3-ax650'),
-                        'created_at': '2025-11-24T00:00:00Z',
-                        'message': {
-                            'role': 'assistant',
-                            'content': result.get('text', '')
-                        },
-                        'done': True
-                    }
-                    self.wfile.write(json.dumps(ollama_response).encode())
+
+                    if self.path == '/v1/chat/completions':
+                        openai_response = {
+                            'id': 'chatcmpl-ax650-1',
+                            'object': 'chat.completion',
+                            'created': 1763942400,
+                            'model': data.get('model', 'qwen3-ax650'),
+                            'choices': [{
+                                'index': 0,
+                                'message': {
+                                    'role': 'assistant',
+                                    'content': result.get('text', '')
+                                },
+                                'finish_reason': 'stop'
+                            }],
+                            'usage': {
+                                'prompt_tokens': 0,
+                                'completion_tokens': len(result.get('text', '').split()),
+                                'total_tokens': len(result.get('text', '').split())
+                            }
+                        }
+                        self.wfile.write(json.dumps(openai_response).encode())
+                    else:
+                        ollama_response = {
+                            'model': data.get('model', 'qwen3-ax650'),
+                            'created_at': '2025-11-24T00:00:00Z',
+                            'message': {
+                                'role': 'assistant',
+                                'content': result.get('text', '')
+                            },
+                            'done': True
+                        }
+                        self.wfile.write(json.dumps(ollama_response).encode())
                     
             except Exception as e:
                 self.send_response(500)

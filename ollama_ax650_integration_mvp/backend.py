@@ -38,6 +38,7 @@ PROXY_PORT = int(os.environ.get("AX650_PORT", 5002))
 # Subprocess state
 RUNTIME_PROCESS = None
 CURRENT_MODEL_PATH = os.environ.get("AX650_MODEL_PATH")
+DEFAULT_SYSTEM_PROMPT = "You are Qwen, created by Alibaba Cloud. You are a helpful assistant."
 
 def start_runtime(model_path=None):
     """Start the C++ inference server (or mock) as a subprocess."""
@@ -69,14 +70,30 @@ def start_runtime(model_path=None):
     if use_real:
         logger.info(f"Launching REAL runtime: {real_binary}")
         
-        # Path to model files (assuming they're in the reference_projects location)
-        model_base = os.path.join(
-            os.path.dirname(os.path.dirname(cwd)),
-            "ax650_raspberry_pi_services",
-            "reference_projects_and_documentation",
-            "Qwen3-4B",
-            "qwen3-4b-ax650"
-        )
+        # Prefer explicit model path from environment (/load request), then fall back
+        # to known workspace locations.
+        model_candidates = [
+            CURRENT_MODEL_PATH,
+            os.path.join(os.path.dirname(os.path.dirname(cwd)), "models", "Qwen3-4B"),
+            os.path.join(
+                os.path.dirname(os.path.dirname(cwd)),
+                "ax650_raspberry_pi_services",
+                "reference_projects_and_documentation",
+                "Qwen3-4B",
+                "qwen3-4b-ax650",
+            ),
+        ]
+        model_base = None
+        for candidate in model_candidates:
+            if candidate and os.path.exists(candidate):
+                model_base = candidate
+                break
+
+        if not model_base:
+            logger.error(f"No valid model directory found from candidates: {model_candidates}")
+            return False
+
+        logger.info(f"Using model directory: {model_base}")
 
         def detect_runtime_device():
             """Detect an appropriate runtime device id.
@@ -137,7 +154,8 @@ def start_runtime(model_path=None):
         
         # Wait for health check
         logger.info("Waiting for runtime to initialize...")
-        for i in range(20):
+        # AX650 model initialization can take time on cold start.
+        for i in range(240):
             if RUNTIME_PROCESS.poll() is not None:
                 # Process exited early
                 out, err = RUNTIME_PROCESS.communicate()
@@ -183,65 +201,44 @@ def proxy_generate():
     """Handle generation request from Ollama adapter."""
     data = request.get_json(force=True)
     prompt = data.get("prompt", "")
-    
-    # 1. Reset Runtime State (Stateless behavior)
-    try:
-        # We send empty system prompt to clear context
-        requests.post(f"{RUNTIME_URL}/api/reset", json={"system_prompt": ""}, timeout=5)
-    except Exception as e:
-        logger.error(f"Failed to reset runtime: {e}")
-        return jsonify({"error": f"Failed to reset runtime: {e}"}), 500
-        
-    # 2. Start Generation
-    try:
-        # Forward parameters
-        # Map Ollama/Adapter params to C++ server params if needed
-        # Adapter sends: prompt, max_tokens
-        # C++ expects: prompt, max_tokens, temperature, top-p, top-k
-        payload = {
-            "prompt": prompt,
-            "max_tokens": data.get("max_tokens", 128),
-            "temperature": data.get("temperature", 0.8),
-            "top-p": data.get("top_p", 0.9),
-            "top-k": data.get("top_k", 40)
-        }
-        requests.post(f"{RUNTIME_URL}/api/generate", json=payload, timeout=5)
-    except Exception as e:
-        logger.error(f"Failed to start generation: {e}")
-        return jsonify({"error": f"Failed to start generation: {e}"}), 500
-        
-    # 3. Poll for results (Streaming -> Accumulation)
-    # Ollama adapter currently expects full text response.
-    # We poll the provider until done.
-    full_text = ""
-    start_time = time.time()
-    
-    while True:
+
+    # Runtime /api/chat is reliable on current firmware. Use it directly.
+    payload = {
+        "messages": [{"role": "user", "content": prompt}],
+        "max_tokens": data.get("max_tokens", 128),
+        "temperature": data.get("temperature", 0.8),
+        "top-p": data.get("top_p", 0.9),
+        "top-k": data.get("top_k", 40),
+    }
+
+    max_retries = 20
+    retry_delay = 0.2
+    for attempt in range(max_retries):
         try:
-            resp = requests.get(f"{RUNTIME_URL}/api/generate_provider", timeout=5)
-            if resp.status_code != 200:
-                logger.error(f"Provider returned status {resp.status_code}")
-                break
-                
-            rdata = resp.json()
-            chunk = rdata.get("response", "")
-            full_text += chunk
-            
-            if rdata.get("done", False):
-                break
-                
-            # Timeout safety
-            if time.time() - start_time > 120: # 2 min timeout
-                logger.error("Generation timed out")
-                break
-                
-            time.sleep(0.05) # Poll interval
-            
+            resp = requests.post(f"{RUNTIME_URL}/api/chat", json=payload, timeout=120)
+            data_json = resp.json()
+
+            # Runtime may transiently return busy; stop and retry.
+            if data_json.get("error") == "llm is running":
+                requests.get(f"{RUNTIME_URL}/api/stop", timeout=5)
+                if attempt < max_retries - 1:
+                    time.sleep(retry_delay)
+                    continue
+                return jsonify({"error": "Runtime remained busy after retries"}), 500
+
+            resp.raise_for_status()
+            text = data_json.get("message", "")
+            # Strip reasoning wrapper tags for user-facing response.
+            text = text.replace("<think>", "").replace("</think>", "").strip()
+            return jsonify({"text": text})
         except Exception as e:
-            logger.error(f"Error polling generation: {e}")
-            return jsonify({"error": f"Error polling generation: {e}"}), 500
-            
-    return jsonify({"text": full_text})
+            if attempt < max_retries - 1:
+                time.sleep(retry_delay)
+                continue
+            logger.error(f"Failed to generate via /api/chat: {e}")
+            return jsonify({"error": f"Failed to generate via runtime chat: {e}"}), 500
+
+    return jsonify({"error": "Unexpected generation failure"}), 500
 
 @APP.route("/load", methods=["POST"])
 def proxy_load():
