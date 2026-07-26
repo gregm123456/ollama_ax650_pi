@@ -125,7 +125,7 @@ git submodule update --init --recursive
 cd ollama_ax650_integration_mvp
 python3 -m venv .venv
 source .venv/bin/activate
-pip install axengine-0.1.3-py3-none-any.whl
+pip install https://github.com/AXERA-TECH/pyaxengine/releases/download/0.1.3.rc3/axengine-0.1.3-py3-none-any.whl
 pip install -r requirements-hardware.txt
 
 # Start backend
