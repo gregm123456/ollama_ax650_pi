@@ -177,6 +177,63 @@ curl http://localhost:11434/api/generate -d '{
 }'
 ```
 
+## 🔄 Reset Conversation & Update System Prompt
+
+This deployment keeps the model loaded on AX650 NPU memory for speed. To start a fresh conversation without unloading the model, use a runtime reset.
+
+### Soft Reset (Recommended)
+
+This clears conversation/KV state while keeping the model resident in NPU memory.
+
+```bash
+curl -s http://127.0.0.1:8000/api/stop
+curl -s -X POST http://127.0.0.1:8000/api/reset \
+  -H "Content-Type: application/json" \
+  -d '{"system_prompt":"You are Qwen, created by Alibaba Cloud. You are a helpful assistant."}'
+```
+
+### Hard Reset (Restart Backend + Runtime)
+
+Use this if runtime state gets stuck or you changed backend code/config.
+
+```bash
+pkill -f 'python.*backend.py'
+pkill -f 'main_api_axcl_aarch64|mock_main_api.py'
+nohup bash /home/robot/ollama_ax650_pi/ollama_ax650_integration_mvp/run_backend.sh \
+  >/home/robot/ollama_ax650_pi/ollama_ax650_integration_mvp/backend_supervisor.log 2>&1 &
+```
+
+### Change the Default System Prompt
+
+Edit `ollama_ax650_integration_mvp/backend.py` and update:
+
+```python
+DEFAULT_SYSTEM_PROMPT = "Your new system prompt here"
+```
+
+Important: the runtime launch arguments also include a `--system_prompt` value. Keep that value in sync with `DEFAULT_SYSTEM_PROMPT`.
+
+After changes, restart backend/runtime (Hard Reset above).
+
+### Verify After Reset/Prompt Change
+
+```bash
+curl -s http://localhost:5002/health
+curl -s -X POST http://localhost:11434/api/generate \
+  -H "Content-Type: application/json" \
+  -d '{"model":"qwen3-ax650","prompt":"hi","stream":false}'
+```
+
+### Optional: Watch NPU Model Residency
+
+```bash
+axcl-smi
+axcl-smi info --npu
+axcl-smi info --cmm
+```
+
+When loaded, you should see a running `main_api_axcl_aarch64` process and high CMM usage.
+
 ## 🗂️ Project Structure
 
 ```
