@@ -33,3 +33,6 @@ ollama/build/
 # Specific log files
 backend.log
 build.log
+
+# Models
+models/
