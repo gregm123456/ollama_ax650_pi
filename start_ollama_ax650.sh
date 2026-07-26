@@ -11,6 +11,9 @@ echo ""
 BACKEND_DIR="/home/robot/ollama_ax650_pi/ollama_ax650_integration_mvp"
 PROXY_SCRIPT="/home/robot/ollama_ax650_pi/ollama_proxy.sh"
 MODEL_PATH="/home/robot/ollama_ax650_pi/models/Qwen3-4B"
+AX650_MAX_CONTEXT_TOKENS="${AX650_MAX_CONTEXT_TOKENS:-16384}"
+
+echo "AX650 max context tokens: $AX650_MAX_CONTEXT_TOKENS"
 
 # Check if backend is already running
 if pgrep -f "python.*backend.py" > /dev/null; then
@@ -21,6 +24,7 @@ else
     source .venv/bin/activate
     export AX650_MODEL_PATH="$MODEL_PATH"
     export AX650_PORT=5002
+    export AX650_MAX_CONTEXT_TOKENS="$AX650_MAX_CONTEXT_TOKENS"
     python backend.py > backend.log 2>&1 &
     BACKEND_PID=$!
     echo "✓ Backend started (PID: $BACKEND_PID)"

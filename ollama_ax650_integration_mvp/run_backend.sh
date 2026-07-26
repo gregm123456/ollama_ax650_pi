@@ -18,5 +18,6 @@ fi
 
 export AX650_MODEL_PATH="/home/robot/ollama_ax650_pi/models/Qwen3-4B"
 export AX650_PORT=5002
+export AX650_MAX_CONTEXT_TOKENS="${AX650_MAX_CONTEXT_TOKENS:-16384}"
 
 "$DIR/.venv/bin/python3" "$DIR/backend.py"

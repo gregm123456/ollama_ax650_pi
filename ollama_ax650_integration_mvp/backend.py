@@ -23,6 +23,7 @@ import signal
 import re
 import shutil
 from flask import Flask, request, jsonify
+from inference_engine import AX650Backend
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("AX650Proxy")
@@ -39,6 +40,48 @@ PROXY_PORT = int(os.environ.get("AX650_PORT", 5002))
 RUNTIME_PROCESS = None
 CURRENT_MODEL_PATH = os.environ.get("AX650_MODEL_PATH")
 DEFAULT_SYSTEM_PROMPT = "You are Qwen, created by Alibaba Cloud. You are a helpful assistant."
+CURRENT_CONTEXT_WINDOW_TOKENS = int(os.environ.get("AX650_MAX_CONTEXT_TOKENS", "1024"))
+BACKEND_ENGINE = None
+
+
+def get_backend_engine():
+    """Return the parent-side backend engine used for configurable runtime state."""
+    global BACKEND_ENGINE
+    if BACKEND_ENGINE is None:
+        BACKEND_ENGINE = AX650Backend()
+        BACKEND_ENGINE.set_context_window(CURRENT_CONTEXT_WINDOW_TOKENS)
+    return BACKEND_ENGINE
+
+
+def apply_context_window(context_window_tokens, reset_runtime=True):
+    """Update the active context window and reset runtime state if needed."""
+    global CURRENT_CONTEXT_WINDOW_TOKENS
+
+    try:
+        value = int(context_window_tokens)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("context_window_tokens must be an integer") from exc
+
+    if value <= 0:
+        raise ValueError("context_window_tokens must be greater than zero")
+
+    CURRENT_CONTEXT_WINDOW_TOKENS = value
+    os.environ["AX650_MAX_CONTEXT_TOKENS"] = str(value)
+
+    engine = get_backend_engine()
+    engine.set_context_window(value)
+
+    if reset_runtime:
+        try:
+            requests.post(
+                f"{RUNTIME_URL}/api/reset",
+                json={"context_window_tokens": value},
+                timeout=2,
+            )
+        except requests.exceptions.RequestException as exc:
+            logger.info("Runtime reset skipped while applying context window: %s", exc)
+
+    return CURRENT_CONTEXT_WINDOW_TOKENS
 
 def start_runtime(model_path=None):
     """Start the C++ inference server (or mock) as a subprocess."""
@@ -240,6 +283,28 @@ def proxy_generate():
 
     return jsonify({"error": "Unexpected generation failure"}), 500
 
+@APP.route("/config/context-window", methods=["GET"])
+def get_context_window():
+    """Return the active context window setting."""
+    return jsonify({"context_window_tokens": CURRENT_CONTEXT_WINDOW_TOKENS})
+
+
+@APP.route("/config/context-window", methods=["POST"])
+def set_context_window():
+    """Set the active context window for the parent-side backend."""
+    data = request.get_json(force=True, silent=True) or {}
+    context_window_tokens = data.get("context_window_tokens")
+    if context_window_tokens is None:
+        return jsonify({"error": "context_window_tokens is required"}), 400
+
+    try:
+        updated = apply_context_window(context_window_tokens)
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), 400
+
+    return jsonify({"status": "ok", "context_window_tokens": updated})
+
+
 @APP.route("/load", methods=["POST"])
 def proxy_load():
     """Handle model load request."""
@@ -267,7 +332,8 @@ def health_check():
         "status": "ok",
         "runtime_up": runtime_up,
         "model": CURRENT_MODEL_PATH,
-        "mode": "proxy"
+        "mode": "proxy",
+        "context_window_tokens": CURRENT_CONTEXT_WINDOW_TOKENS,
     })
 
 def main():

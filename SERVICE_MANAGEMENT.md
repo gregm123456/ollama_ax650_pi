@@ -32,6 +32,7 @@ Terminal 2: backend (auto-launches AX runtime subprocess)
 
 ```bash
 cd /home/robot/ollama_ax650_pi/ollama_ax650_integration_mvp
+AX650_MAX_CONTEXT_TOKENS=16384 \
 ./run_backend.sh
 ```
 
@@ -109,6 +110,7 @@ User=robot
 WorkingDirectory=/home/robot/ollama_ax650_pi/ollama_ax650_integration_mvp
 Environment=AX650_MODEL_PATH=/home/robot/ollama_ax650_pi/models/Qwen3-4B
 Environment=AX650_PORT=5002
+Environment=AX650_MAX_CONTEXT_TOKENS=16384
 ExecStart=/home/robot/ollama_ax650_pi/ollama_ax650_integration_mvp/run_backend.sh
 Restart=always
 RestartSec=2
@@ -200,4 +202,5 @@ sudo systemctl restart ax650-tokenizer.service ax650-backend.service ollama-ax65
 	- `WorkingDirectory=`
 	- `ExecStart=`
 	- `AX650_MODEL_PATH=`
+	- `AX650_MAX_CONTEXT_TOKENS=`
 

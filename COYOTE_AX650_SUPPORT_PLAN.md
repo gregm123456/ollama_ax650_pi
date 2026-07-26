@@ -256,3 +256,108 @@ Add tests around provider dispatch and AX650 request semantics (mock `requests`)
 - Preserve current runtime behavior for non-AX650 providers.
 - Add clear logs around reset actions to aid field debugging.
 
+## Concrete Validation Protocol: Additive Memory vs Effective Context Limit
+
+This protocol is the required method to validate two independent questions:
+
+1. Does AX650 mode append context in runtime memory from turn to turn when we send latest-prompt-only?
+2. What is the effective context ceiling in the current deployed runtime/model pair?
+
+### Preconditions
+
+1. Services running and reachable:
+	- `http://127.0.0.1:11434/api/generate`
+	- `http://127.0.0.1:8000/api/stop`
+	- `http://127.0.0.1:8000/api/reset`
+2. AX650 provider path enabled in coyote (`LLM = "ax650"`).
+3. Runtime is responsive (`/api/stop` returns quickly).
+
+### Critical Clarification
+
+`AX650_MAX_CONTEXT_TOKENS` in the parent proxy layer is not sufficient proof of runtime context capacity. The runtime binary must also support and apply that context size. In this project, runtime help output does not expose a context-length flag.
+
+### Test Arms
+
+#### Arm A: Additive (single reset, then no reset per turn)
+
+Purpose: prove runtime accumulation and find failure turn.
+
+1. `GET /api/stop`
+2. `POST /api/reset` with `system_prompt`
+3. Send repeated `POST /api/generate` turns with:
+	- large but deterministic prompt body
+	- `stream=false`
+	- fixed `options.num_predict` (small, e.g. 24)
+4. Record per turn:
+	- HTTP status
+	- latency
+	- response text snippet
+	- whether response includes `SetKVCache failed` / `context may be full`
+
+Pass condition:
+- multiple early turns succeed, then a later turn fails with context-full indication.
+
+#### Arm B: Reset-each-turn control
+
+Purpose: prove failures in Arm A are from accumulation (not random instability).
+
+1. For each turn:
+	- `GET /api/stop`
+	- `POST /api/reset` with identical `system_prompt`
+	- send same `POST /api/generate` pattern as Arm A
+2. Record same telemetry.
+
+Pass condition:
+- turns continue to succeed without context-full failure under same prompt size.
+
+### Additional Runtime Capability Check
+
+Run:
+
+```bash
+./main_api_axcl_aarch64 --help
+```
+
+Record whether context-window options exist. If absent, large context cannot be assumed configurable at runtime from current CLI surface.
+
+### Current Run Results (2026-07-26)
+
+Observed on live stack after clean restart:
+
+1. Runtime help shows no context-length CLI flag.
+2. Backend health after restart reported `context_window_tokens: 1024`.
+3. Arm A (additive):
+	- Turn 1: success
+	- Turn 2: success
+	- Turn 3: `error: SetKVCache failed: %d,the context may be full,please reset`
+4. Arm B (reset-each-turn): 10/10 turns succeeded with the same prompt structure.
+
+Interpretation:
+- Additive memory behavior exists and is functioning.
+- Effective context ceiling in the currently running runtime/model path is far below the intended 16384 target.
+- Failures are accumulation-driven, not just endpoint instability.
+
+### Implications for Project Goals
+
+Goal: long conversations with hot-loaded in-progress context, without re-sending full history.
+
+Current status:
+1. Latest-prompt-only transport is correctly implemented.
+2. Runtime accumulation exists.
+3. Effective context budget is currently too small for long sessions with transcript-heavy prompts.
+
+### Practical Pathway to Deep Context Exploitation
+
+1. Establish true runtime context capacity as a first-class capability:
+	- if runtime has hidden config, surface and validate it;
+	- if not, use a runtime/model artifact that supports larger KV cache.
+2. Validate context size empirically after every deployment change with this protocol.
+3. Keep latest-prompt-only request strategy (already correct).
+4. Add budget-aware lifecycle for production:
+	- additive until threshold,
+	- summarize state into a compact memory block,
+	- reset runtime,
+	- continue additive from summarized state.
+
+This hybrid strategy preserves low per-turn latency while extending practical conversation depth when native large context is unavailable.
+

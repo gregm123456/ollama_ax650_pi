@@ -6,11 +6,23 @@ Extracted from backend.py to support both legacy backend and new mock server.
 import os
 import logging
 import numpy as np
-import torch
-from transformers import AutoTokenizer
 import time
-import ml_dtypes
 import uuid
+
+try:
+    import torch
+except ImportError:  # pragma: no cover - exercised in minimal environments
+    torch = None
+
+try:
+    from transformers import AutoTokenizer
+except ImportError:  # pragma: no cover - exercised in minimal environments
+    AutoTokenizer = None
+
+try:
+    import ml_dtypes
+except ImportError:  # pragma: no cover - exercised in minimal environments
+    ml_dtypes = None
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -26,10 +38,17 @@ class AX650Backend:
         self.tokenizer = None
         self.layers = []
         self.post_model = None
+        self.context_window_tokens = int(os.environ.get("AX650_MAX_CONTEXT_TOKENS", "1024"))
+        self._bf16_dtype = getattr(ml_dtypes, "bfloat16", np.float32)
         
         # Try to import manufacturer python bindings
         self.backend_type = None
         self.axcl = None  # For low-level control like reset
+
+        if torch is None:
+            logger.warning("torch is not available; generation will fall back to a lightweight stub path")
+        if AutoTokenizer is None:
+            logger.warning("transformers is not available; tokenizer loading will be unavailable")
 
         # Always try to import axcl (pyaxcl package) for device management
         try:
@@ -81,6 +100,23 @@ class AX650Backend:
         else:
             logger.warning("Cannot reset device: pyaxcl not available")
             return False
+
+    def set_context_window(self, context_window_tokens):
+        """Set the active context window and reinitialize KV caches when needed."""
+        try:
+            value = int(context_window_tokens)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("context_window_tokens must be an integer") from exc
+
+        if value <= 0:
+            raise ValueError("context_window_tokens must be greater than zero")
+
+        self.context_window_tokens = value
+        if self.k_caches is not None and self.v_caches is not None:
+            self._initialize_kv_caches(num_layers=max(1, len(self.layers) or 32))
+
+        logger.info("Updated context window to %d tokens", self.context_window_tokens)
+        return self.context_window_tokens
 
     def load_model(self, model_path: str = None):
         """Load AX650 model using InferenceSession.
@@ -230,14 +266,17 @@ class AX650Backend:
         return {"status": "loaded", "model": model_path, "type": "qwen3-4b", "layers": len(self.layers)}
 
     
-    def _initialize_kv_caches(self, num_layers=32, kv_dim=1024, max_seq_len=1024):
+    def _initialize_kv_caches(self, num_layers=32, kv_dim=1024, max_seq_len=None):
         """Initialize KV caches for LLM inference.
         
         These dimensions should match your model architecture.
         For Qwen3-4B: typically 36 layers, hidden_size=2560, kv_dim=1024
         """
-        # Use bfloat16 for KV cache to match model expectation
-        dtype = ml_dtypes.bfloat16
+        if max_seq_len is None:
+            max_seq_len = self.context_window_tokens
+
+        # Use bfloat16 for KV cache to match model expectation when available
+        dtype = self._bf16_dtype
         
         # Cache shape: [1, max_seq_len, kv_dim]
         # We maintain the full buffer here
@@ -395,14 +434,14 @@ class AX650Backend:
             # embedding_weights is float32 [vocab, hidden]
             # Convert to bfloat16 for NPU input
             t_e0 = time.perf_counter()
-            hidden_state = self.embedding_weights[token_id].reshape(1, 1, 2560).astype(ml_dtypes.bfloat16)
+            hidden_state = self.embedding_weights[token_id].reshape(1, 1, 2560).astype(self._bf16_dtype)
             t_embedding += time.perf_counter() - t_e0
             
             # Prepare mask
-            # Mask is [1, 1, 1024]. 1 for valid, 0 for masked.
+            # Mask is [1, 1, context_window]. 1 for valid, 0 for masked.
             # We want 1s up to current_pos (inclusive)
             # Use bfloat16 as requested by runtime
-            mask = np.zeros((1, 1, 1024), dtype=ml_dtypes.bfloat16)
+            mask = np.zeros((1, 1, self.context_window_tokens), dtype=self._bf16_dtype)
             mask[:, :, :current_pos+1] = 1.0
             
             # Prepare indices
@@ -412,11 +451,12 @@ class AX650Backend:
             # Run through layers
             t_layer_step0 = time.perf_counter()
             for i, layer_sess in enumerate(self.layers):
-                # Prepare KV cache input: [1, 1023, 1024]
-                # We pass the first 1023 elements of our 1024 buffer
-                # They are already bfloat16 from initialization
-                k_in = self.k_caches[i][:, :1023, :]
-                v_in = self.v_caches[i][:, :1023, :]
+                # Prepare KV cache input: [1, context_window-1, kv_dim]
+                # We pass the prior context positions up to the current step.
+                # They are already bfloat16 from initialization.
+                cache_window = max(1, self.context_window_tokens - 1)
+                k_in = self.k_caches[i][:, :cache_window, :]
+                v_in = self.v_caches[i][:, :cache_window, :]
                 
                 inputs = {
                     "input": hidden_state,
@@ -445,7 +485,7 @@ class AX650Backend:
                 hidden_state = outputs[2]
                 
                 # Update KV cache
-                # k_out is [1, 1, 1024]
+                # k_out is [1, 1, kv_dim]
                 self.k_caches[i][:, current_pos, :] = k_out.reshape(1, 1024)
                 self.v_caches[i][:, current_pos, :] = v_out.reshape(1, 1024)
             # Per-step layer time
@@ -471,7 +511,7 @@ class AX650Backend:
                 except Exception:
                     logits_np = np.asarray(logits)
 
-                if logits_np.dtype == ml_dtypes.bfloat16:
+                if ml_dtypes is not None and getattr(logits_np, "dtype", None) == getattr(ml_dtypes, "bfloat16", None):
                     logits_np = logits_np.astype(np.float32)
 
                 # Extract top-k ids for quick sanity check
@@ -511,7 +551,7 @@ class AX650Backend:
                 pass
                 
             current_pos += 1
-            if current_pos >= 1023:
+            if current_pos >= self.context_window_tokens - 1:
                 logger.warning("Context length limit reached")
                 break
                 
@@ -536,7 +576,11 @@ class AX650Backend:
         """Sample next token from logits."""
         # logits shape: [1, 1, vocab_size]
         # Convert ml_dtypes.bfloat16 to float32 for torch compatibility
-        if logits.dtype == ml_dtypes.bfloat16:
+        if torch is None:
+            logits_array = np.asarray(logits).reshape(-1)
+            return int(np.argmax(logits_array))
+
+        if ml_dtypes is not None and getattr(logits, "dtype", None) == getattr(ml_dtypes, "bfloat16", None):
             logits = logits.astype(np.float32)
 
         logits = torch.tensor(logits[0, 0, :])

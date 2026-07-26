@@ -4,6 +4,7 @@ set -e
 # Configuration
 export AX650_MODEL_PATH="/home/robot/ollama_ax650_pi/ax650_raspberry_pi_services/reference_projects_and_documentation/Qwen3-4B/qwen3-4b-ax650"
 export AX650_PORT=5002
+export AX650_MAX_CONTEXT_TOKENS="${AX650_MAX_CONTEXT_TOKENS:-16384}"
 export OLLAMA_HOST=0.0.0.0:11434
 export OLLAMA_USE_AX650=1
 

@@ -160,3 +160,74 @@ Provide a final implementation report containing:
 2. Exact behavior implemented for AX650 generation and reset.
 3. Test results (unit + manual checklist outcomes).
 4. Any known limitations or follow-up recommendations.
+
+## Additive Context Validation Protocol (Mandatory)
+
+Run this protocol whenever validating long-conversation behavior in AX650 mode.
+
+### Objective
+
+Separate and measure:
+1. Additive runtime-memory behavior (latest-prompt-only, no full transcript resend).
+2. Effective runtime context ceiling in the currently deployed binary/model path.
+
+### Preconditions
+
+1. Endpoints reachable:
+  - `http://127.0.0.1:11434/api/generate`
+  - `http://127.0.0.1:8000/api/stop`
+  - `http://127.0.0.1:8000/api/reset`
+2. `LLM = "ax650"`.
+3. Runtime responds quickly to `GET /api/stop` before tests.
+
+### Arm A: Additive Memory Stress
+
+1. Call stop then reset with `system_prompt` once.
+2. Send repeated `/api/generate` requests with only latest prompt text.
+3. Use deterministic long prompts and fixed `num_predict` to make runs comparable.
+4. Record per turn:
+  - status code
+  - latency
+  - text snippet
+  - context-full marker (`SetKVCache failed` / `context may be full`)
+
+Expected:
+- early turns succeed, then fail once KV cache budget is exhausted.
+
+### Arm B: Reset-Each-Turn Control
+
+1. For each turn, call stop+reset before generate.
+2. Send the same prompt structure used in Arm A.
+3. Record the same metrics.
+
+Expected:
+- sustained success over many turns if failures in Arm A were accumulation-driven.
+
+### Runtime Capability Check
+
+Run runtime help and capture options:
+
+```bash
+./main_api_axcl_aarch64 --help
+```
+
+If no context-length option exists, do not assume runtime can apply large context values just because proxy-layer config reports a larger number.
+
+### Current Measured Findings (2026-07-26)
+
+1. Runtime help has no explicit context-length CLI option.
+2. After clean restart, backend health reported `context_window_tokens: 1024`.
+3. Additive arm failed at turn 3 with context-full message.
+4. Reset-each-turn control succeeded 10/10 with identical prompt structure.
+
+Conclusion:
+- latest-prompt-only transport is implemented correctly;
+- additive memory is active;
+- practical context budget remains too small for long transcript-heavy conversations in current runtime/model deployment.
+
+### Design Guidance for Long Sessions
+
+To meet the project goal (hot-loaded additive conversation + deep usable context):
+1. Keep latest-prompt-only outbound behavior.
+2. Increase true runtime/model context capacity (not only proxy config).
+3. Add budget-aware summarize-then-reset lifecycle when native context remains constrained.

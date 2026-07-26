@@ -66,6 +66,13 @@ def handle_reset():
             
     data = request.get_json(force=True, silent=True) or {}
     system_prompt = data.get("system_prompt", "")
+    context_window_tokens = data.get("context_window_tokens")
+    if context_window_tokens is not None:
+        try:
+            BACKEND.set_context_window(int(context_window_tokens))
+            logger.info("MockServer: Updated context window to %s", context_window_tokens)
+        except Exception as exc:
+            logger.warning("MockServer: Failed to update context window: %s", exc)
     
     # In the real C++ server, this resets KV cache and sets system prompt.
     # Our Python backend doesn't explicitly support setting system prompt separately from generate,
